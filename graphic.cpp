@@ -364,41 +364,6 @@ void Graphic::sobelOperator()
         }
     }
 
-//    QColor col[3][3];
-
-//    QImage newImage = QImage (*image);
-
-////    float r,g,b;
-//    int kx, ky;     //обозначают границы
-//    for (int i = 1; i < w-1; i++) {
-//        kx = -1;
-//        ky = -1;
-//        for (int j = 1; j < h-1; j++) {
-//            col[0][0] = newImage.pixelColor(i - (kx < 0 ? 0 : 1), j - (ky < 0 ? 0 : 1));
-//            col[0][1] = newImage.pixelColor(i - (kx < 0 ? 0 : 1), j);
-//            col[0][2] = newImage.pixelColor(i - (kx < 0 ? 0 : 1), j + (ky > 0 ? 0 : 1));
-//            col[1][0] = newImage.pixelColor(i, j - (ky < 0 ? 0 : 1));
-//            col[1][1] = newImage.pixelColor(i, j);
-//            col[1][2] = newImage.pixelColor(i, j + (ky > 0 ? 0 : 1));
-//            col[2][0] = newImage.pixelColor(i + (kx > 0 ? 0 : 1), j - (ky < 0 ? 0 : 1));
-//            col[2][1] = newImage.pixelColor(i + (kx > 0 ? 0 : 1), j);
-//            col[2][2] = newImage.pixelColor(i + (kx > 0 ? 0 : 1), j + (ky > 0 ? 0 : 1));
-//            QColor color = colorNormir(matrixColorMul(col, sobelMaskX), matrixColorMul(col, sobelMaskY));
-
-//            image->setPixelColor (i, j, color);
-
-//            if (i == w - 1)
-//                ky = 1;
-//            else
-//                ky = 0;
-//            if (j == h - 1)
-//                kx = 1;
-//            else //if (j != 0)
-//                    kx = 0;
-////                else
-////                    ky = -1;
-//        }
-//    }
 }
 
 QImage *Graphic::outlineSelectionLinear()
@@ -509,6 +474,7 @@ void Graphic::setImage(QImage *value)
     image = new QImage (*value);
 }
 
+//установить значения интенсивности
 void Graphic::setGray()
 {
     if (image != nullptr)
@@ -524,12 +490,16 @@ void Graphic::setGray()
         grayScale = new double [height * width];
 
         for (int j = 0; j < height; j++)
-                for (int i = 0; i < width; i++)
-
-            {
+            for (int i = 0; i < width; i++){
                 grayScale[j * width + i] = 0,213 * qRed(imageBytes[j][i]) + 0,715 * qGreen(imageBytes[j][i]) + 0,072 * qBlue(imageBytes[j][i]);
             }
     }
+}
+
+double *Graphic::getDerivateX()
+{
+    QList <int[]> sobelMaskX;// = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+    sobelMaskX.append([-1, 0, 1]);
 }
 
 unsigned char *Graphic::getY() const

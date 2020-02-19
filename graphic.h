@@ -49,6 +49,11 @@ public:
     void sobelOperator ();
     void Binarization ();
 
+
+
+
+
+
     QColor matrixColorMul (QColor colors[3][3], int matrix[3][3]);
     QRgb matrixColorMul (QRgb colors[3][3], int matrix[3][3]);
     unsigned char matrixMul (unsigned char channel[3][3], int matrix[3][3]);
@@ -65,7 +70,12 @@ public:
 
     QImage *getImage() const;
     void setImage(QImage *value);
-    void setGray ();
+
+
+
+    void setGray ();    //установить значения интенсивности
+    double *getDerivateX(); //получить массивы с частными производными
+    double *getDerivateY();
 
     unsigned char *getY() const;
 
