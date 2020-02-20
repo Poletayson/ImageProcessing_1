@@ -22,7 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
    connect(ui->ButtonRepair, SIGNAL(clicked()), this, SLOT(Repair ()));
 //   connect(ui->horizontalSlider, SIGNAL(sliderReleased()), this, SLOT(sliderOb()));
    connect(ui->ButtonNoise, SIGNAL(clicked()), this, SLOT(setNoise ()));
-//   connect(ui->ButtonMedian, SIGNAL(clicked()), this, SLOT(Median ()));
+   connect(ui->buttonDerivateX, SIGNAL(clicked()), this, SLOT(setDerivateX ()));
+   connect(ui->buttonDerivateY, SIGNAL(clicked()), this, SLOT(setDerivateY ()));
    //connect(ui->ButtonGauss, SIGNAL(clicked()), this, SLOT(Gauss ()));
 
    myGraphic2->setLIMIT(ui->horizontalSlider->value());
@@ -34,8 +35,6 @@ MainWindow::MainWindow(QWidget *parent) :
    ui->ButtonGauss->hide();
    ui->ButtonNoise->hide();
    ui->ButtonRepair->hide();
-   ui->ButtonAquarel->hide();
-   ui->ButtonMy->hide();
    ui->pushButton_2->hide();
 
    image = new QImage ();
@@ -195,6 +194,29 @@ void MainWindow::on_pushButtonYUV_clicked()
         myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
         qint64 secs = start.msecsTo(finish);
         ui->labelLine->setText("Линейный алгоритм: " + QString::number(secs));
+
+}
+
+void MainWindow::setDerivateX()
+{
+    myGraphic2->setImage(myGraphic->getImage());
+
+    delete image;
+    myGraphic2->setImageDouble();   //устанавливаем значения в дабл
+    myGraphic2->setGray();  //переводим в GrayScale
+
+
+    image = myGraphic2->outlineSelectionLinear();//sobelOperator();
+    QDateTime finish = QDateTime::currentDateTime();
+
+    delete myGraphic2->imageItem;
+    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
+    qint64 secs = start.msecsTo(finish);
+    ui->labelLine->setText("Линейный алгоритм: " + QString::number(secs));
+}
+
+void MainWindow::setDerivateY()
+{
 
 }
 

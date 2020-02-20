@@ -477,29 +477,146 @@ void Graphic::setImage(QImage *value)
 //установить значения интенсивности
 void Graphic::setGray()
 {
-    if (image != nullptr)
-    {
-        width = image->width();
-        height = image->height();
-
-        QRgb *imageBytes[height];
-        //построчно сканируем изображение
-        for (int i = 0; i < height; i++){
-            imageBytes[i] = (QRgb*)(image->scanLine(i));
+    for (int j = 0; j < height; j++)
+        for (int i = 0; i < width; i++){
+            imageDouble[j * width + i] = 0,213 * qRed(imageDouble[j * width + i]) + 0,715 * qGreen(imageDouble[j * width + i]) + 0,072 * qBlue(imageDouble[j * width + i]);
         }
-        grayScale = new double [height * width];
+}
 
-        for (int j = 0; j < height; j++)
-            for (int i = 0; i < width; i++){
-                grayScale[j * width + i] = 0,213 * qRed(imageBytes[j][i]) + 0,715 * qGreen(imageBytes[j][i]) + 0,072 * qBlue(imageBytes[j][i]);
-            }
+//установить текущее изображение в виде матрицы double, чтобы с ним можно было производить манипуляции
+void Graphic::setImageDouble()
+{
+    QRgb *imageBytes[height];
+    //построчно сканируем изображение
+    for (int i = 0; i < height; i++){
+        imageBytes[i] = (QRgb*)(image->scanLine(i));
     }
+    imageDouble = new double [height * width];
+    //Заполняем массив
+    for (int j = 0; j < height; ++j) //все строки
+        for (int i = 0; i < width; ++i) {
+            imageDouble[j * width + i] =  (unsigned int)(*imageBytes)[j * width + i];
+        }
+}
+
+void Graphic::setImageFromDouble()
+{
+    QRgb *imageBytes[height];
+    //построчно сканируем изображение
+    for (int i = 0; i < height; i++){
+        imageBytes[i] = (QRgb*)(image->scanLine(i));
+    }
+
+    //устанавливаем значения для изображения
+    for (int j = 0; j < height; ++j) //все строки
+        for (int i = 0; i < width; ++i) {
+            imageBytes[j][i] = imageDouble[j * width + i];
+            //imageDouble[j * width + i] =  (unsigned int)(*imageBytes)[j * width + i];
+        }
+}
+
+//универсальная свертка, применяется к *image
+void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<double> > core)
+{
+    //***
+    //списки в ядре располагаются по горизонтали, поэтому размеры берутся так а не иначе
+    //***
+    int coreW = core[0].count() / 2;
+    int coreH = core.count() / 2;
+
+    int widthWorking = w + coreW * 2;    //ширина и высота расширенного, рабочего изображения
+    int heightWorking = h + coreH * 2;
+
+    //расширяем изображение на размер ядра
+    double *imageWorking = new double [widthWorking * heightWorking]; //расширенное рабочее изображение
+
+    //Заполняем рабочее изображение
+    for (int j = 0; j < heightWorking; ++j) //все строки
+        for (int i = 0; i < widthWorking; ++i) {
+            //Здесь мы просто точки, лежащие за границей, приравниваем граничным =)
+            imageWorking[j * widthWorking + i] = image[(j - coreH < 0 ? 0 : (j + coreH > heightWorking - 1 ? heightWorking - 1 : j)) * widthWorking + (i - coreW < 0 ? 0 : (i + coreW > widthWorking - 1 ? widthWorking - 1 : i))];
+        }
+
+    //применяем свертку ко всем точкам
+    for (int j = 0; j < heightWorking; ++j) //все строки
+        for (int i = 0; i < widthWorking; ++i) {
+            double sum = 0; //результат свертки для одной точки
+
+            for (int v = 0; v < core.count(); v++)  //для каждого ряда в ядре
+            //для каждого значения в ряду
+                for (int u = 0; u < core[0].count(); u++)
+                    sum += imageWorking[(j * widthWorking - coreH + v) + (i - coreW + u)] * core[v][u]; //здесь учитываем что coreW == (core[0].count() - 1) / 2, coreH аналогично
+
+            image[j * widthWorking + i] = sum;
+
+            //Здесь мы просто точки, лежащие за границей, приравниваем граничным =)
+            imageWorking[j * widthWorking + i] = image[(j - coreH < 0 ? 0 : (j + coreH > heightWorking - 1 ? heightWorking - 1 : j)) * widthWorking + (i - coreW < 0 ? 0 : (i + coreW > widthWorking - 1 ? widthWorking - 1 : i))];
+        }
 }
 
 double *Graphic::getDerivateX()
 {
-    QList <int[]> sobelMaskX;// = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-    sobelMaskX.append([-1, 0, 1]);
+    QList<QList<double> > core; //ядро свертки
+//    QList<double> coreStr;
+    core.append(QList<double>({-1, 0, 1}));
+    core.append(QList<double>({-2, 0, 2}));
+    core.append(QList<double>({-1, 0, 1}));
+
+
+
+
+    setImageDouble();   //устанавливаем массив
+
+
+
+
+//    QRgb *imageBytes[height + 2];
+//    QRgb *newImageBytes[height];
+//    for (int i = 0; i < height; i++){
+//        imageBytes[i] = (QRgb*)(image->scanLine(i));
+//    }
+
+//    for (int i = 0; i < height; i++){
+//        newImageBytes[i] = new QRgb[width];
+//        for (int j = 0; j < width; j++){
+//            newImageBytes[i][j] = imageBytes[i][j];
+//        }
+//    }
+
+
+
+//    for (int i = 1; i < w-1; i++) {
+//        int kx = -1;        //обозначают границы
+//        int ky = -1;
+//        for (int j = 1; j < h-1; j++) {
+//            QRgb col[3][3];
+//            col[0][0] = newImageBytes[j - (ky < 0 ? 0 : 1)][i - (kx < 0 ? 0 : 1)];//newImage.pixelColor(i - (kx < 0 ? 0 : 1), j - (ky < 0 ? 0 : 1));
+//            col[0][1] = newImageBytes[j][i - (kx < 0 ? 0 : 1)];//newImage.pixelColor(i - (kx < 0 ? 0 : 1), j);
+//            col[0][2] = newImageBytes[j + (ky > 0 ? 0 : 1)][i - (kx < 0 ? 0 : 1)];//newImage.pixelColor(i - (kx < 0 ? 0 : 1), j + (ky > 0 ? 0 : 1));
+//            col[1][0] = newImageBytes[j][i];//newImage.pixelColor(i, j - (ky < 0 ? 0 : 1));
+//            col[1][1] = newImageBytes[j + (ky > 0 ? 0 : 1)][i];//newImage.pixelColor(i, j);
+//            col[1][2] = newImageBytes[j - (ky < 0 ? 0 : 1)][i];//newImage.pixelColor(i, j + (ky > 0 ? 0 : 1));
+//            col[2][0] = newImageBytes[j - (ky < 0 ? 0 : 1)][i + (kx > 0 ? 0 : 1)];//newImage.pixelColor(i + (kx > 0 ? 0 : 1), j - (ky < 0 ? 0 : 1));
+//            col[2][1] = newImageBytes[j][i + (kx > 0 ? 0 : 1)];//newImage.pixelColor(i + (kx > 0 ? 0 : 1), j);
+//            col[2][2] = newImageBytes[j + (ky > 0 ? 0 : 1)][i + (kx > 0 ? 0 : 1)];//newImage.pixelColor(i + (kx > 0 ? 0 : 1), j + (ky > 0 ? 0 : 1));
+//            QRgb color = colorNormir(matrixColorMul(col, sobelMaskX), matrixColorMul(col, sobelMaskY));
+
+
+//            if (i == w - 1)
+//                ky = 1;
+//            else
+//                ky = 0;
+//            if (j == h - 1)
+//                kx = 1;
+//            else //if (j != 0)
+//                    kx = 0;
+
+////                else
+////                    ky = -1;
+//            imageBytes[j][i] = color;
+
+//        }
+//    }
 }
 
 unsigned char *Graphic::getY() const

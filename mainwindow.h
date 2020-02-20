@@ -21,7 +21,6 @@
 #include <QDateTime>
 #include <QSlider>
 #include <QButtonGroup>
-#include <dialog.h>
 
 
 namespace Ui {
@@ -71,6 +70,9 @@ private slots:
 
 
     void on_pushButtonYUV_clicked();
+
+    void setDerivateX ();   //установить производные
+    void setDerivateY ();
 
 private:
     Ui::MainWindow *ui;

@@ -73,9 +73,16 @@ public:
 
 
 
+
+
+    void setImageDouble (); //установить текущее изображение в виде матрицы double, чтобы с ним можно было производить манипуляции
+    void setImageFromDouble (); //установить текущее изображение из матрицы double
+
     void setGray ();    //установить значения интенсивности
-    double *getDerivateX(); //получить массивы с частными производными
-    double *getDerivateY();
+
+    void convolutionUniversal(double *image, int w, int h, QList<QList<double>> core);  //универсальная свертка, применяется к *image
+    double* getDerivateX(); //получить массивы с частными производными
+    double* getDerivateY();
 
     unsigned char *getY() const;
 
@@ -93,6 +100,7 @@ private:
     QImage *image;
     int width;
     int height;
+    double *imageDouble;   //текущее изображение в виде матрицы double
     double *grayScale;   //
     unsigned char *Y, *U, *V;
 };

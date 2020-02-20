@@ -86,16 +86,16 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="ButtonAquarel">
+         <widget class="QPushButton" name="buttonDerivateX">
           <property name="text">
-           <string>Y</string>
+           <string>Производная по X</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="ButtonMy">
+         <widget class="QPushButton" name="buttonDerivateY">
           <property name="text">
-           <string>U</string>
+           <string>Производная по Y</string>
           </property>
          </widget>
         </item>
