@@ -202,22 +202,33 @@ void MainWindow::setDerivateX()
     myGraphic2->setImage(myGraphic->getImage());
 
     delete image;
-    myGraphic2->setImageDouble();   //устанавливаем значения в дабл
+    //myGraphic2->setImageDouble();   //устанавливаем значения в дабл
     myGraphic2->setGray();  //переводим в GrayScale
+    myGraphic2->setDerivateX(); //вычисляем частную производную по X
 
+    myGraphic2->setImageFromDouble();   //переводим матрицу обратно в Image
 
-    image = myGraphic2->outlineSelectionLinear();//sobelOperator();
-    QDateTime finish = QDateTime::currentDateTime();
+    image = myGraphic2->getImage();
 
     delete myGraphic2->imageItem;
     myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
-    qint64 secs = start.msecsTo(finish);
-    ui->labelLine->setText("Линейный алгоритм: " + QString::number(secs));
 }
 
 void MainWindow::setDerivateY()
 {
+    myGraphic2->setImage(myGraphic->getImage());
 
+    delete image;
+    //myGraphic2->setImageDouble();   //устанавливаем значения в дабл
+    myGraphic2->setGray();  //переводим в GrayScale
+    myGraphic2->setDerivateY(); //вычисляем частную производную по X
+
+    myGraphic2->setImageFromDouble();   //переводим матрицу обратно в Image
+
+    image = myGraphic2->getImage();
+
+    delete myGraphic2->imageItem;
+    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
 }
 
 

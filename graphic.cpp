@@ -376,45 +376,6 @@ QImage *Graphic::outlineSelectionLinear()
     return image;
 }
 
-QImage *Graphic::outlineSelectionParallel(int threadCount)
-{
-    QList <QRect> rects;
-    QList <ThreadGraphic*> threads;
-    int lineW = image->width()/threadCount; //ширина одной полоски изображения
-    int lineH = image->height();
-//    Y = new unsigned char [image->width() * image->height()];
-//    U = new unsigned char [image->width() * image->height()];
-//    V = new unsigned char [image->width() * image->height()];
-    ThreadGraphic *ptr;
-    int x = 1;
-    for (int i = 0; i < threadCount; i++){
-        rects.append(QRect(x, 1, i == threadCount - 1 ? image->width() - x - 1  : lineW, lineH - 2));
-        ptr = new ThreadGraphic();
-        threads.append(ptr);
-        threads[threads.count() - 1]->setImagePointer(image);
-        threads[threads.count() - 1]->setRect(rects[rects.count() - 1]);
-        threads[threads.count() - 1]->setYUVPointers(Y, U, V);
-        threads[threads.count() - 1]->setLIMIT(LIMIT);
-        x += lineW;
-        threads[i]->run();
-    }
-    qDebug()<<"Зашли в параллельный";
-//    for (int i = 0; i < threadCount; i++){
-//        threads[i]->run();
-//    }
-    bool theadFinished = false;
-
-    while (!theadFinished){        //пока все потоки не завершат работу
-        theadFinished = true;
-        for (int i = 0; i < threads.count(); i++){  //раз за разом обходим наши потоки
-            if (threads[i]->isRunning()){
-                theadFinished = false;
-                break;
-            }
-        }
-
-    }
-}
 
 
 QImage* Graphic::sobelOperatorOneChannel(unsigned char *matrix)
@@ -472,15 +433,36 @@ QImage *Graphic::getImage() const
 void Graphic::setImage(QImage *value)
 {
     image = new QImage (*value);
+    width = image->width();
+    height = image->height();
 }
 
 //установить значения интенсивности
 void Graphic::setGray()
 {
+    QRgb *imageBytes[height];
+    //построчно сканируем изображение
+    for (int i = 0; i < height; i++){
+        imageBytes[i] = (QRgb*)(image->scanLine(i));
+    }
+
+    //QRgb *grayBytes = new QRgb [height * width];
+
+    imageDouble = new double [height * width];
+
     for (int j = 0; j < height; j++)
         for (int i = 0; i < width; i++){
-            imageDouble[j * width + i] = 0,213 * qRed(imageDouble[j * width + i]) + 0,715 * qGreen(imageDouble[j * width + i]) + 0,072 * qBlue(imageDouble[j * width + i]);
+            imageDouble[j * width + i] = 0.213 * static_cast<double>(qRed(imageBytes[j][i]))  + 0.715 * static_cast<double>(qGreen(imageBytes[j][i])) + 0.072 * static_cast<double>(qBlue(imageBytes[j][i]));
+            //grayBytes[j * width + i] = 0.213 * qRed(*imageBytes[j * width + i]) + 0.715 * qGreen(*imageBytes[j * width + i]) + 0.072 * qBlue(*imageBytes[j * width + i]);
         }
+
+
+//    //Заполняем массив
+//    for (int j = 0; j < height; ++j) //все строки
+//        for (int i = 0; i < width; ++i) {
+//            imageDouble[j * width + i] =  (unsigned int)(*imageBytes)[j * width + i];
+//        }
+
 }
 
 //установить текущее изображение в виде матрицы double, чтобы с ним можно было производить манипуляции
@@ -510,17 +492,20 @@ void Graphic::setImageFromDouble()
     //устанавливаем значения для изображения
     for (int j = 0; j < height; ++j) //все строки
         for (int i = 0; i < width; ++i) {
-            imageBytes[j][i] = imageDouble[j * width + i];
+            imageBytes[j][i] = qRgb(imageDouble[j * width + i], imageDouble[j * width + i], imageDouble[j * width + i]);
             //imageDouble[j * width + i] =  (unsigned int)(*imageBytes)[j * width + i];
         }
 }
 
-//универсальная свертка, применяется к *image
+
+
+
+/*
+ * универсальная свертка, применяется к *image
+ */
 void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<double> > core)
 {
-    //***
-    //списки в ядре располагаются по горизонтали, поэтому размеры берутся так а не иначе
-    //***
+//списки в ядре располагаются по горизонтали, поэтому размеры берутся так а не иначе
     int coreW = core[0].count() / 2;
     int coreH = core.count() / 2;
 
@@ -534,89 +519,44 @@ void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<doub
     for (int j = 0; j < heightWorking; ++j) //все строки
         for (int i = 0; i < widthWorking; ++i) {
             //Здесь мы просто точки, лежащие за границей, приравниваем граничным =)
-            imageWorking[j * widthWorking + i] = image[(j - coreH < 0 ? 0 : (j + coreH > heightWorking - 1 ? heightWorking - 1 : j)) * widthWorking + (i - coreW < 0 ? 0 : (i + coreW > widthWorking - 1 ? widthWorking - 1 : i))];
+            imageWorking[j * widthWorking + i] = image[(j - coreH < 0 ? 0 : (j + coreH > height - 1 ? height - 1 : j)) * width + (i - coreW < 0 ? 0 : (i + coreW > width - 1 ? width - 1 : i))];
         }
 
     //применяем свертку ко всем точкам
-    for (int j = 0; j < heightWorking; ++j) //все строки
-        for (int i = 0; i < widthWorking; ++i) {
+    for (int j = 0; j < height; ++j) //все строки
+        for (int i = 0; i < width; ++i) {
             double sum = 0; //результат свертки для одной точки
 
             for (int v = 0; v < core.count(); v++)  //для каждого ряда в ядре
             //для каждого значения в ряду
                 for (int u = 0; u < core[0].count(); u++)
-                    sum += imageWorking[(j * widthWorking - coreH + v) + (i - coreW + u)] * core[v][u]; //здесь учитываем что coreW == (core[0].count() - 1) / 2, coreH аналогично
+                    sum += imageWorking[(j + v) * widthWorking + (i + u)] * core[v][u]; //здесь учитываем что coreW == (core[0].count() - 1) / 2, coreH аналогично
 
-            image[j * widthWorking + i] = sum;
+            image[j * width + i] = sum;
 
-            //Здесь мы просто точки, лежащие за границей, приравниваем граничным =)
-            imageWorking[j * widthWorking + i] = image[(j - coreH < 0 ? 0 : (j + coreH > heightWorking - 1 ? heightWorking - 1 : j)) * widthWorking + (i - coreW < 0 ? 0 : (i + coreW > widthWorking - 1 ? widthWorking - 1 : i))];
+//            //Здесь мы просто точки, лежащие за границей, приравниваем граничным =)
+//            imageWorking[j * widthWorking + i] = image[(j - coreH < 0 ? 0 : (j + coreH > heightWorking - 1 ? heightWorking - 1 : j)) * widthWorking + (i - coreW < 0 ? 0 : (i + coreW > widthWorking - 1 ? widthWorking - 1 : i))];
         }
 }
 
-double *Graphic::getDerivateX()
+void Graphic::setDerivateX()
 {
     QList<QList<double> > core; //ядро свертки
-//    QList<double> coreStr;
     core.append(QList<double>({-1, 0, 1}));
     core.append(QList<double>({-2, 0, 2}));
     core.append(QList<double>({-1, 0, 1}));
 
+    convolutionUniversal(imageDouble, width, height, core); //непосредственно вычисляем
+}
 
+void Graphic::setDerivateY()
+{
+    QList<QList<double> > core; //ядро свертки
+    core.append(QList<double>({-1, -2, -1}));
+    core.append(QList<double>({0, 0, 0}));
+    core.append(QList<double>({1, 2, 1}));
 
-
-    setImageDouble();   //устанавливаем массив
-
-
-
-
-//    QRgb *imageBytes[height + 2];
-//    QRgb *newImageBytes[height];
-//    for (int i = 0; i < height; i++){
-//        imageBytes[i] = (QRgb*)(image->scanLine(i));
-//    }
-
-//    for (int i = 0; i < height; i++){
-//        newImageBytes[i] = new QRgb[width];
-//        for (int j = 0; j < width; j++){
-//            newImageBytes[i][j] = imageBytes[i][j];
-//        }
-//    }
-
-
-
-//    for (int i = 1; i < w-1; i++) {
-//        int kx = -1;        //обозначают границы
-//        int ky = -1;
-//        for (int j = 1; j < h-1; j++) {
-//            QRgb col[3][3];
-//            col[0][0] = newImageBytes[j - (ky < 0 ? 0 : 1)][i - (kx < 0 ? 0 : 1)];//newImage.pixelColor(i - (kx < 0 ? 0 : 1), j - (ky < 0 ? 0 : 1));
-//            col[0][1] = newImageBytes[j][i - (kx < 0 ? 0 : 1)];//newImage.pixelColor(i - (kx < 0 ? 0 : 1), j);
-//            col[0][2] = newImageBytes[j + (ky > 0 ? 0 : 1)][i - (kx < 0 ? 0 : 1)];//newImage.pixelColor(i - (kx < 0 ? 0 : 1), j + (ky > 0 ? 0 : 1));
-//            col[1][0] = newImageBytes[j][i];//newImage.pixelColor(i, j - (ky < 0 ? 0 : 1));
-//            col[1][1] = newImageBytes[j + (ky > 0 ? 0 : 1)][i];//newImage.pixelColor(i, j);
-//            col[1][2] = newImageBytes[j - (ky < 0 ? 0 : 1)][i];//newImage.pixelColor(i, j + (ky > 0 ? 0 : 1));
-//            col[2][0] = newImageBytes[j - (ky < 0 ? 0 : 1)][i + (kx > 0 ? 0 : 1)];//newImage.pixelColor(i + (kx > 0 ? 0 : 1), j - (ky < 0 ? 0 : 1));
-//            col[2][1] = newImageBytes[j][i + (kx > 0 ? 0 : 1)];//newImage.pixelColor(i + (kx > 0 ? 0 : 1), j);
-//            col[2][2] = newImageBytes[j + (ky > 0 ? 0 : 1)][i + (kx > 0 ? 0 : 1)];//newImage.pixelColor(i + (kx > 0 ? 0 : 1), j + (ky > 0 ? 0 : 1));
-//            QRgb color = colorNormir(matrixColorMul(col, sobelMaskX), matrixColorMul(col, sobelMaskY));
-
-
-//            if (i == w - 1)
-//                ky = 1;
-//            else
-//                ky = 0;
-//            if (j == h - 1)
-//                kx = 1;
-//            else //if (j != 0)
-//                    kx = 0;
-
-////                else
-////                    ky = -1;
-//            imageBytes[j][i] = color;
-
-//        }
-//    }
+    convolutionUniversal(imageDouble, width, height, core); //непосредственно вычисляем
 }
 
 unsigned char *Graphic::getY() const

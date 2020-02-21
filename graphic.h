@@ -62,9 +62,7 @@ public:
     unsigned char componentNormir (unsigned char colorX, unsigned char colorY);
 
 
-
     QImage* outlineSelectionLinear ();
-    QImage* outlineSelectionParallel (int threadCount);
     QImage* sobelOperatorOneChannel (unsigned char *matix);
 
 
@@ -81,8 +79,8 @@ public:
     void setGray ();    //установить значения интенсивности
 
     void convolutionUniversal(double *image, int w, int h, QList<QList<double>> core);  //универсальная свертка, применяется к *image
-    double* getDerivateX(); //получить массивы с частными производными
-    double* getDerivateY();
+    void setDerivateX(); //получить массивы с частными производными
+    void setDerivateY();
 
     unsigned char *getY() const;
 
