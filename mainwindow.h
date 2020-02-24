@@ -34,10 +34,7 @@ class MainWindow : public QMainWindow
 public:
     Graphic* myGraphic;
     Graphic* myGraphic2;
-//    Graphic* histogram;
-    QTimer *Timer;
 
-    QTimer *timer;
     QRandomGenerator* random;
     QButtonGroup* buttGr;
     int buttNum;
@@ -49,43 +46,22 @@ public:
 public slots:
     void setStart ();
 
-    void Repair ();
-
-    void setNoise ();
-
-
-    QString getFile();
-
+    void getFile();
+    void saveFile();
 
 
 private slots:
-
-    void on_ButtonAquarel_clicked();
-
-    void on_ButtonMy_clicked();
-
-    void on_pushButton_2_clicked();
-
     void on_horizontalSlider_valueChanged(int value);
 
-
-    void on_pushButtonYUV_clicked();
-
-    void setDerivateX ();   //установить производные
+    void setDerivateX ();   //получить производные
     void setDerivateY ();
+    void setGradient ();    //получить градиент
 
 private:
     Ui::MainWindow *ui;
 
-    int m = 10;             //величина сдвига
-    double u = M_PI/20;
-    double scale = 1.2;
-    bool proc = false;
-
     QImage *image;
     unsigned char *grayScale;   //изображение в сером цвете
-    unsigned char *Y, *U, *V;
-
 };
 
 #endif // MAINWINDOW_H

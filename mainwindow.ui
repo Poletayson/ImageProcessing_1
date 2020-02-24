@@ -20,27 +20,6 @@
       <item row="1" column="0">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QLabel" name="labelLine">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="labelOpenMP">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="labelParell">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QSpinBox" name="spinBoxThreadCount">
           <property name="minimum">
            <number>1</number>
@@ -51,26 +30,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="ButtonNoise">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Шум</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="ButtonGauss">
           <property name="text">
            <string>Ф. Гаусса</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="ButtonRezk">
-          <property name="text">
-           <string>Повыш. резкости</string>
           </property>
          </widget>
         </item>
@@ -79,9 +41,9 @@
       <item row="1" column="3">
        <layout class="QVBoxLayout" name="verticalLayout_8">
         <item>
-         <widget class="QPushButton" name="pushButtonYUV">
+         <widget class="QPushButton" name="buttonGradient">
           <property name="text">
-           <string>Выделить контуры</string>
+           <string>Градиент</string>
           </property>
          </widget>
         </item>
@@ -96,13 +58,6 @@
          <widget class="QPushButton" name="buttonDerivateY">
           <property name="text">
            <string>Производная по Y</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_2">
-          <property name="text">
-           <string>V</string>
           </property>
          </widget>
         </item>
@@ -160,7 +115,7 @@
      <x>0</x>
      <y>0</y>
      <width>698</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -168,6 +123,7 @@
      <string>Файл</string>
     </property>
     <addaction name="open"/>
+    <addaction name="save"/>
    </widget>
    <addaction name="menu"/>
   </widget>
@@ -185,27 +141,15 @@
     <string>Открыть</string>
    </property>
   </action>
+  <action name="save">
+   <property name="text">
+    <string>Сохранить</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections>
-  <connection>
-   <sender>pushButtonYUV</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>on_pushButtonYUV_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>162</x>
-     <y>379</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>348</x>
-     <y>273</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>on_pushButtonYUV_clicked()</slot>
  </slots>

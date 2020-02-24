@@ -19,23 +19,17 @@ MainWindow::MainWindow(QWidget *parent) :
     random = new QRandomGenerator ();
 
    connect(ui->open, SIGNAL(triggered(bool)), this, SLOT(getFile()));
-   connect(ui->ButtonRepair, SIGNAL(clicked()), this, SLOT(Repair ()));
-//   connect(ui->horizontalSlider, SIGNAL(sliderReleased()), this, SLOT(sliderOb()));
-   connect(ui->ButtonNoise, SIGNAL(clicked()), this, SLOT(setNoise ()));
+   connect(ui->save, SIGNAL(triggered(bool)), this, SLOT(saveFile()));
+   //connect(ui->ButtonRepair, SIGNAL(clicked()), this, SLOT(Repair ()));
    connect(ui->buttonDerivateX, SIGNAL(clicked()), this, SLOT(setDerivateX ()));
    connect(ui->buttonDerivateY, SIGNAL(clicked()), this, SLOT(setDerivateY ()));
-   //connect(ui->ButtonGauss, SIGNAL(clicked()), this, SLOT(Gauss ()));
+   connect(ui->buttonGradient, SIGNAL(clicked()), this, SLOT(setGradient ()));
 
    myGraphic2->setLIMIT(ui->horizontalSlider->value());
-//    ui->verticalLayout->addWidget(myGraphic);
-//    ui->verticalLayout_4->addWidget(myGraphic2);
 
-    //myGraphic->Drawing();
-   ui->ButtonRezk->hide();
    ui->ButtonGauss->hide();
-   ui->ButtonNoise->hide();
    ui->ButtonRepair->hide();
-   ui->pushButton_2->hide();
+   ui->spinBoxThreadCount->hide();
 
    image = new QImage ();
 }
@@ -50,7 +44,7 @@ MainWindow::~MainWindow()
 
 
 
-QString MainWindow::getFile()             //выбираем список файлов
+void MainWindow::getFile()             //выбираем список файлов
 {
     #include <QDir>
     QString path = QApplication::applicationDirPath();  //QDir::currentPath();      //текущая директория
@@ -64,32 +58,21 @@ QString MainWindow::getFile()             //выбираем список фай
         myGraphic->GetFileImage(fileName);      //получаем изображение
         setStart ();
     }
-/////
-//    buttGr->button(0)->setChecked(true);
-//    buttonChange ();
-////
-    //ui->radioButton->setChecked(true);
-    //ui->horizontalSlider->setValue(0);
-    return fileName;
-
 }
 
-void MainWindow::Repair ()      //восстановление
+void MainWindow::saveFile()
 {
-//    if (myGraphic->image != Q_NULLPTR)
-//        delete myGraphic->image;
-//    if (myGraphic->reserve != Q_NULLPTR)
-//        delete myGraphic->reserve;
-
-    if (myGraphic2->imageItem != Q_NULLPTR)
-        delete myGraphic2->imageItem;
-    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(myGraphic->imageItem->pixmap());
-
-
-    if (myGraphic2->reserve != Q_NULLPTR)
-        delete myGraphic2->reserve;
-    myGraphic2->reserve = new QGraphicsPixmapItem (myGraphic->imageItem->pixmap());
+    #include <QDir>
+    QString path = QApplication::applicationDirPath();  //QDir::currentPath();      //текущая директория
+    if (QDir(path + "/Input").exists())
+         path = path + "/Input";
+    else
+        QDir(path).mkdir("Input");
+    QString fileName = QFileDialog::getSaveFileName(Q_NULLPTR, "Сохранить", path);
+    //получили имя
+    myGraphic2->getImage()->save(fileName);
 }
+
 
 
 void MainWindow::setStart ()
@@ -103,99 +86,12 @@ void MainWindow::setStart ()
     myGraphic2->reserve = new QGraphicsPixmapItem (myGraphic2->imageItem->pixmap());
 }
 
-void MainWindow::setNoise ()
-{
-    if (myGraphic2->imageItem != Q_NULLPTR)
-    {
-        int noisePers = ui->horizontalSlider->value();      //процент шума
-        int r, g, b;
-        QImage *newImage = new QImage (myGraphic2->imageItem->pixmap().toImage());
-        //QColor* col;
-        QRgb c;
-        for (int i = 0; i < myGraphic2->imageItem->pixmap().width(); i++)
-            for (int j = 0; j < myGraphic2->imageItem->pixmap().height(); j++)
-            {
-                if (random->generate() % 100 < noisePers)
-                {
-                    r = random->generate() % 256;
-                    g = random->generate() % 256;
-                    b = random->generate() % 256;
-                    c = qRgb(r, g, b);
-//                    col = new QColor ();
-//                    col->setBlue(b);
-//                    col->setGreen(g);
-//                    col->setRed(r);
-                    newImage->setPixel (i, j, c); //Color(i, j, *col);
-                    //delete col;
-                }
-            }
-        delete myGraphic2->imageItem;
-        myGraphic2->imageItem = myGraphic2->myScene->addPixmap (*new QPixmap (QPixmap::fromImage(*newImage)));
-        delete myGraphic2->reserve;
-        myGraphic2->reserve = new QGraphicsPixmapItem (myGraphic2->imageItem->pixmap());
-        delete newImage;
-
-    }
-}
-
-
-void MainWindow::on_ButtonAquarel_clicked()
-{
-    myGraphic2->setImage(myGraphic->getImage());
-//    image = myGraphic->getImage();
-    myGraphic2->setYUVMatix();
-    //myGraphic2->setYUV();
-
-    //delete image;
-    image = myGraphic2->sobelOperatorOneChannel(myGraphic2->getY());
-    delete myGraphic2->imageItem;
-    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
-}
-
-void MainWindow::on_ButtonMy_clicked()
-{
-    myGraphic2->setImage(myGraphic->getImage());
-//    image = myGraphic->getImage();
-    myGraphic2->setYUVMatix();
-
-    image = myGraphic2->sobelOperatorOneChannel(myGraphic2->getU());
-    delete myGraphic2->imageItem;
-    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
-}
-
-void MainWindow::on_pushButton_2_clicked()
-{
-    myGraphic2->setImage(myGraphic->getImage());
-    myGraphic2->setYUVMatix();
-
-    //delete image;
-    image = myGraphic2->sobelOperatorOneChannel(myGraphic2->getV());
-    delete myGraphic2->imageItem;
-    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
-}
 
 void MainWindow::on_horizontalSlider_valueChanged(int value)
 {
     myGraphic2->setLIMIT(value);
 }
 
-
-
-void MainWindow::on_pushButtonYUV_clicked()
-{
-        myGraphic2->setImage(myGraphic->getImage());
-
-        QDateTime start = QDateTime::currentDateTime();
-        delete image;
-        image = myGraphic2->outlineSelectionLinear();//sobelOperator();
-        QDateTime finish = QDateTime::currentDateTime();
-
-        delete myGraphic2->imageItem;
-        myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
-        qint64 secs = start.msecsTo(finish);
-        ui->labelLine->setText("Линейный алгоритм: " + QString::number(secs));
-
-}
 
 void MainWindow::setDerivateX()
 {
@@ -219,9 +115,8 @@ void MainWindow::setDerivateY()
     myGraphic2->setImage(myGraphic->getImage());
 
     delete image;
-    //myGraphic2->setImageDouble();   //устанавливаем значения в дабл
     myGraphic2->setGray();  //переводим в GrayScale
-    myGraphic2->setDerivateY(); //вычисляем частную производную по X
+    myGraphic2->setDerivateY(); //вычисляем частную производную по Y
 
     myGraphic2->setImageFromDouble();   //переводим матрицу обратно в Image
 
@@ -229,6 +124,21 @@ void MainWindow::setDerivateY()
 
     delete myGraphic2->imageItem;
     myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
+}
+
+void MainWindow::setGradient()
+{
+    myGraphic2->setImage(myGraphic->getImage());
+
+    delete image;
+    myGraphic2->setGray();  //переводим в GrayScale
+    myGraphic2->setGradient(); //вычисляем значения градиента
+    myGraphic2->setImageFromDouble();   //переводим матрицу обратно в Image
+
+    image = myGraphic2->getImage();
+
+    delete myGraphic2->imageItem;
+    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image)); //устанавливаем новую картинку
 }
 
 

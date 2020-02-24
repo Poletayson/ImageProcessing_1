@@ -14,6 +14,7 @@
 #include <threadgraphic.h>
 #include <QDebug>
 #include <QPainter>
+#include <QFile>
 
 class Graphic : public QGraphicsView
 {
@@ -38,17 +39,6 @@ public:
     void GetFileImage (QString file);
                    //отрисовка
     QGraphicsItemGroup* addRect (qreal x, qreal y, qreal w, qreal h, QPen* p, QGraphicsScene* sc);
-    void resizeEvent(QResizeEvent *event);
-    QPixmap* getNegative ();
-    QPixmap* getGray();
-    //QPixmap* getNegative ();
-    QPixmap* Brightness(int val);
-
-    bool setYUVMatix ();
-    bool setYUV ();
-    void sobelOperator ();
-    void Binarization ();
-
 
 
 
@@ -62,15 +52,10 @@ public:
     unsigned char componentNormir (unsigned char colorX, unsigned char colorY);
 
 
-    QImage* outlineSelectionLinear ();
-    QImage* sobelOperatorOneChannel (unsigned char *matix);
 
 
     QImage *getImage() const;
     void setImage(QImage *value);
-
-
-
 
 
     void setImageDouble (); //установить текущее изображение в виде матрицы double, чтобы с ним можно было производить манипуляции
@@ -81,12 +66,8 @@ public:
     void convolutionUniversal(double *image, int w, int h, QList<QList<double>> core);  //универсальная свертка, применяется к *image
     void setDerivateX(); //получить массивы с частными производными
     void setDerivateY();
+    void setGradient(); //получить величину градиента
 
-    unsigned char *getY() const;
-
-    unsigned char *getU() const;
-
-    unsigned char *getV() const;
 
     void setLIMIT(int value);
 
@@ -100,7 +81,6 @@ private:
     int height;
     double *imageDouble;   //текущее изображение в виде матрицы double
     double *grayScale;   //
-    unsigned char *Y, *U, *V;
 };
 
 #endif // GRAPHIC_H
