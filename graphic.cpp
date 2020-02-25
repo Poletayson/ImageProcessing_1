@@ -169,7 +169,7 @@ void Graphic::setImageDouble()
     //Заполняем массив
     for (int j = 0; j < height; ++j) //все строки
         for (int i = 0; i < width; ++i) {
-            imageDouble[j * width + i] =  (unsigned int)(*imageBytes)[j * width + i];
+            imageDouble[j * width + i] =  (unsigned int)(*imageBytes)[j * width + i] / 255;
         }
 }
 
@@ -181,6 +181,7 @@ void Graphic::setImageFromDouble()
         imageBytes[i] = (QRgb*)(image->scanLine(i));
     }
 
+    normalization255();
     //устанавливаем значения для изображения
     for (int j = 0; j < height; ++j) //все строки
         for (int i = 0; i < width; ++i) {
@@ -258,6 +259,7 @@ void Graphic::setGradient()
     double* derivateX = imageDouble;
     setGray();
     setDerivateY(); //получаем производную по Y
+
     //считаем величину градиента
     for (int i = 0; i < width; ++i) {
         for (int j = 0; j < height; ++j) {
@@ -267,9 +269,56 @@ void Graphic::setGradient()
     }
 }
 
+void Graphic::gaussianFilter(int sigma)
+{
+
+}
+
 void Graphic::setLIMIT(int value)
 {
     LIMIT = value;
+}
+
+void Graphic::normalization()
+{
+    double min = 50, max = -50;
+    for (int i = 0; i < width; ++i) {
+        for (int j = 0; j < height; ++j) {
+            if (min > imageDouble[j * width + i])
+                min = imageDouble[j * width + i];
+            if (max < imageDouble[j * width + i])
+                max = imageDouble[j * width + i];
+        }
+    }
+
+
+
+    for (int i = 0; i < width; ++i) {
+        for (int j = 0; j < height; ++j) {
+            imageDouble[j * width + i] = (imageDouble[j * width + i] - min) * (1 - 0) / (max - min) + 0;
+        }
+    }
+}
+
+void Graphic::normalization255()
+{
+    double min = 50, max = -50;
+    for (int i = 0; i < width; ++i) {
+        for (int j = 0; j < height; ++j) {
+            if (min > imageDouble[j * width + i])
+                min = imageDouble[j * width + i];
+            if (max < imageDouble[j * width + i])
+                max = imageDouble[j * width + i];
+        }
+    }
+
+
+
+    for (int i = 0; i < width; ++i) {
+        for (int j = 0; j < height; ++j) {
+            imageDouble[j * width + i] = (imageDouble[j * width + i] - min) * (255 - 0) / (max - min) + 0;
+        }
+    }
 }
 
 

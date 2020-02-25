@@ -8,7 +8,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    timer = new QTimer ();
 
     myGraphic = new Graphic ();
     myGraphic2 = new Graphic ();

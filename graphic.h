@@ -67,6 +67,7 @@ public:
     void setDerivateX(); //получить массивы с частными производными
     void setDerivateY();
     void setGradient(); //получить величину градиента
+    void gaussianFilter(int sigma);
 
 
     void setLIMIT(int value);
@@ -81,6 +82,9 @@ private:
     int height;
     double *imageDouble;   //текущее изображение в виде матрицы double
     double *grayScale;   //
+
+    void normalization();
+    void normalization255();
 };
 
 #endif // GRAPHIC_H
