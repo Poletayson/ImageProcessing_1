@@ -56,6 +56,7 @@ private slots:
     void setDerivateX ();   //получить производные
     void setDerivateY ();
     void setGradient ();    //получить градиент
+    void setGauss ();    //
 
 private:
     Ui::MainWindow *ui;

@@ -157,6 +157,27 @@ void Graphic::setGray()
         }
 }
 
+void Graphic::setRGB()
+{
+    QRgb *imageBytes[height];
+    //построчно сканируем изображение
+    for (int i = 0; i < height; i++){
+        imageBytes[i] = (QRgb*)(image->scanLine(i));
+    }
+
+    r = new double [height * width];
+    g = new double [height * width];
+    b = new double [height * width];
+
+    for (int j = 0; j < height; j++)
+        for (int i = 0; i < width; i++){
+
+            r[j * width + i] = static_cast<double>(qRed(imageBytes[j][i])) / 255;
+            g[j * width + i] = static_cast<double>(qGreen(imageBytes[j][i])) / 255;
+            b[j * width + i] = static_cast<double>(qBlue(imageBytes[j][i])) / 255;
+        }
+}
+
 //установить текущее изображение в виде матрицы double, чтобы с ним можно было производить манипуляции
 void Graphic::setImageDouble()
 {
@@ -181,12 +202,30 @@ void Graphic::setImageFromDouble()
         imageBytes[i] = (QRgb*)(image->scanLine(i));
     }
 
-    normalization255();
+    normalization255(imageDouble);
     //устанавливаем значения для изображения
     for (int j = 0; j < height; ++j) //все строки
         for (int i = 0; i < width; ++i) {
             int colorVal = static_cast<int>(fmax(fmin (imageDouble[j * width + i], 255), 0));
             imageBytes[j][i] = qRgb(colorVal, colorVal, colorVal);
+        }
+}
+
+void Graphic::setImageFromRGB()
+{
+    QRgb *imageBytes[height];
+    //построчно сканируем изображение
+    for (int i = 0; i < height; i++){
+        imageBytes[i] = (QRgb*)(image->scanLine(i));
+    }
+
+    normalization255(r);
+    normalization255(g);
+    normalization255(b);
+    //устанавливаем значения для изображения
+    for (int j = 0; j < height; ++j) //все строки
+        for (int i = 0; i < width; ++i) {
+            imageBytes[j][i] = qRgb(static_cast<int>(r[j * width + i]), static_cast<int>(g[j * width + i]), static_cast<int>(b[j * width + i]));
         }
 }
 
@@ -216,6 +255,14 @@ void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<doub
 
     int xSize = core[0].count();
     int ySize = core.count();
+
+//    //вычисляем сумму элементов ядра
+//    double coreSum = 0;
+//    for (int x = 0; x < xSize; ++x) {
+//        for (int y = 0; y < ySize; ++y) {
+//            coreSum += core[x][y];
+//        }
+//    }
 
     //применяем свертку ко всем точкам
     for (int j = 0; j < height; ++j) //все строки
@@ -269,9 +316,51 @@ void Graphic::setGradient()
     }
 }
 
+/*
+ * фильтр Гаусса
+ */
 void Graphic::gaussianFilter(int sigma)
 {
+    QList<QList<double> > core; //ядро свертки
 
+    if (sigma % 2 == 0)
+        ++sigma;
+    double coeff = 1 / (2 * M_PI * sigma * sigma);
+    double delitel = 2 * sigma * sigma;
+
+    for (int i = 1; i <= sigma; i++){
+        QList<double> str;
+        for (int j = 1; j <= sigma; j++) {
+            str.append(coeff * exp(- (i * i + j * j) / delitel));
+        }
+        core.append(str);
+    }
+
+    convolutionUniversal(imageDouble, width, height, core); //непосредственно вычисляем
+}
+
+void Graphic::gaussianFilterRGB(int sigma)
+{
+    QList<QList<double> > core; //ядро свертки
+
+    int sigma3 = sigma * 3;
+    int coreSize = sigma3;
+    if (coreSize % 2 == 0)
+        ++coreSize;
+    double coeff = 1 / (2 * M_PI * sigma * sigma);
+    double delitel = 2 * sigma * sigma;
+
+    for (int i = 1; i <= coreSize; i++){
+        QList<double> str;
+        for (int j = 1; j <= coreSize; j++) {
+            str.append(coeff * exp(- ((i - sigma3) * (i - sigma3) + (j - sigma3) * (j - sigma3)) / delitel));
+        }
+        core.append(str);
+    }
+
+    convolutionUniversal(r, width, height, core); //непосредственно вычисляем
+    convolutionUniversal(g, width, height, core); //непосредственно вычисляем
+    convolutionUniversal(b, width, height, core); //непосредственно вычисляем
 }
 
 void Graphic::setLIMIT(int value)
@@ -300,15 +389,15 @@ void Graphic::normalization()
     }
 }
 
-void Graphic::normalization255()
+void Graphic::normalization255(double *img)
 {
-    double min = 50, max = -50;
+    double min = 0, max = 1;
     for (int i = 0; i < width; ++i) {
         for (int j = 0; j < height; ++j) {
-            if (min > imageDouble[j * width + i])
-                min = imageDouble[j * width + i];
-            if (max < imageDouble[j * width + i])
-                max = imageDouble[j * width + i];
+            if (min > img[j * width + i])
+                min = img[j * width + i];
+            if (max < img[j * width + i])
+                max = img[j * width + i];
         }
     }
 
@@ -316,7 +405,7 @@ void Graphic::normalization255()
 
     for (int i = 0; i < width; ++i) {
         for (int j = 0; j < height; ++j) {
-            imageDouble[j * width + i] = (imageDouble[j * width + i] - min) * (255 - 0) / (max - min) + 0;
+            img[j * width + i] = (img[j * width + i] - min) * (255 - 0) / (max - min) + 0;
         }
     }
 }

@@ -60,14 +60,17 @@ public:
 
     void setImageDouble (); //установить текущее изображение в виде матрицы double, чтобы с ним можно было производить манипуляции
     void setImageFromDouble (); //установить текущее изображение из матрицы double
+    void setImageFromRGB (); //установить текущее изображение из матриц цветов
 
     void setGray ();    //установить значения интенсивности
+    void setRGB ();    //установить значения цветов
 
     void convolutionUniversal(double *image, int w, int h, QList<QList<double>> core);  //универсальная свертка, применяется к *image
     void setDerivateX(); //получить массивы с частными производными
     void setDerivateY();
     void setGradient(); //получить величину градиента
     void gaussianFilter(int sigma);
+    void gaussianFilterRGB(int sigma);
 
 
     void setLIMIT(int value);
@@ -82,9 +85,10 @@ private:
     int height;
     double *imageDouble;   //текущее изображение в виде матрицы double
     double *grayScale;   //
+    double *r, *g, *b;   //
 
     void normalization();
-    void normalization255();
+    void normalization255(double *img);
 };
 
 #endif // GRAPHIC_H

@@ -23,10 +23,10 @@ MainWindow::MainWindow(QWidget *parent) :
    connect(ui->buttonDerivateX, SIGNAL(clicked()), this, SLOT(setDerivateX ()));
    connect(ui->buttonDerivateY, SIGNAL(clicked()), this, SLOT(setDerivateY ()));
    connect(ui->buttonGradient, SIGNAL(clicked()), this, SLOT(setGradient ()));
+   connect(ui->ButtonGauss, SIGNAL(clicked()), this, SLOT(setGauss ()));
 
    myGraphic2->setLIMIT(ui->horizontalSlider->value());
 
-   ui->ButtonGauss->hide();
    ui->ButtonRepair->hide();
    ui->spinBoxThreadCount->hide();
 
@@ -138,6 +138,22 @@ void MainWindow::setGradient()
 
     delete myGraphic2->imageItem;
     myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image)); //устанавливаем новую картинку
+}
+
+void MainWindow::setGauss()
+{
+    myGraphic2->setImage(myGraphic->getImage());
+
+    delete image;
+    myGraphic2->setRGB();
+    myGraphic2->gaussianFilterRGB(ui->horizontalSlider->value()); //применяем фильтр Гаусса
+
+    myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
+
+    image = myGraphic2->getImage();
+
+    delete myGraphic2->imageItem;
+    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
 }
 
 
