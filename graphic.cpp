@@ -237,8 +237,8 @@ void Graphic::setImageFromRGB()
 void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<double> > core)
 {
 //списки в ядре располагаются по горизонтали, поэтому размеры берутся так а не иначе
-    int coreW = core[0].count() / 2;
-    int coreH = core.count() / 2;
+    int coreW = static_cast<int>(core[0].count() / 2);
+    int coreH = static_cast<int>(core.count() / 2);
 
     int widthWorking = w + coreW * 2;    //ширина и высота расширенного, рабочего изображения
     int heightWorking = h + coreH * 2;
@@ -250,7 +250,8 @@ void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<doub
     for (int j = 0; j < heightWorking; ++j) //все строки
         for (int i = 0; i < widthWorking; ++i) {
             //Здесь мы просто точки, лежащие за границей, приравниваем граничным =)
-            imageWorking[j * widthWorking + i] = image[(j - coreH < 0 ? 0 : (j + coreH > height - 1 ? height - 1 : j)) * width + (i - coreW < 0 ? 0 : (i + coreW > width - 1 ? width - 1 : i))];
+            imageWorking[j * widthWorking + i] = image[(j - coreH <= 0 ? 0 : (j >= height - 1 ? height - 1 : j - coreH)) * width +
+                    (i - coreW <= 0 ? 0 : (i >= width - 1 ? width - 1 : i - coreW))];
         }
 
     int xSize = core[0].count();
@@ -319,18 +320,19 @@ void Graphic::setGradient()
 /*
  * фильтр Гаусса
  */
-void Graphic::gaussianFilter(int sigma)
+void Graphic::gaussianFilter(double sigma)
 {
     QList<QList<double> > core; //ядро свертки
 
-    if (sigma % 2 == 0)
-        ++sigma;
+    int sigmaInt = static_cast<int>(sigma) * 3;
+    if (sigmaInt  % 2 == 0)
+        ++sigmaInt;
     double coeff = 1 / (2 * M_PI * sigma * sigma);
     double delitel = 2 * sigma * sigma;
 
-    for (int i = 1; i <= sigma; i++){
+    for (int i = 1; i <= sigmaInt; i++){
         QList<double> str;
-        for (int j = 1; j <= sigma; j++) {
+        for (int j = 1; j <= sigmaInt; j++) {
             str.append(coeff * exp(- (i * i + j * j) / delitel));
         }
         core.append(str);
@@ -339,21 +341,23 @@ void Graphic::gaussianFilter(int sigma)
     convolutionUniversal(imageDouble, width, height, core); //непосредственно вычисляем
 }
 
-void Graphic::gaussianFilterRGB(int sigma)
+void Graphic::gaussianFilterRGB(double sigma)
 {
     QList<QList<double> > core; //ядро свертки
 
-    int sigma3 = sigma * 3;
-    int coreSize = sigma3;
-    if (coreSize % 2 == 0)
-        ++coreSize;
-    double coeff = 1 / (2 * M_PI * sigma * sigma);
-    double delitel = 2 * sigma * sigma;
+    double s = sigma * sigma * 2;
 
-    for (int i = 1; i <= coreSize; i++){
+    int halfSize = static_cast<int>(sigma) * 3;
+    if (halfSize  % 2 == 0)
+        ++halfSize;
+
+//    double coeff = 1 / (2 * M_PI * sigma * sigma);
+//    double delitel = 2 * sigma * sigma;
+
+    for (int i = -halfSize; i <= halfSize; i++){
         QList<double> str;
-        for (int j = 1; j <= coreSize; j++) {
-            str.append(coeff * exp(- ((i - sigma3) * (i - sigma3) + (j - sigma3) * (j - sigma3)) / delitel));
+        for (int j = -halfSize; j <= halfSize; j++) {
+            str.append(exp(- (i * i + j * j) / s) / (M_PI * s));
         }
         core.append(str);
     }

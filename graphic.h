@@ -69,8 +69,8 @@ public:
     void setDerivateX(); //получить массивы с частными производными
     void setDerivateY();
     void setGradient(); //получить величину градиента
-    void gaussianFilter(int sigma);
-    void gaussianFilterRGB(int sigma);
+    void gaussianFilter(double sigma);
+    void gaussianFilterRGB(double sigma);
 
 
     void setLIMIT(int value);

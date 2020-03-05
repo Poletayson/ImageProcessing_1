@@ -146,7 +146,7 @@ void MainWindow::setGauss()
 
     delete image;
     myGraphic2->setRGB();
-    myGraphic2->gaussianFilterRGB(ui->horizontalSlider->value()); //применяем фильтр Гаусса
+    myGraphic2->gaussianFilterRGB(static_cast<double>(ui->horizontalSlider->value()) / 3); //применяем фильтр Гаусса
 
     myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
 
