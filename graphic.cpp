@@ -234,7 +234,7 @@ void Graphic::setImageFromRGB()
 /*
  * универсальная свертка, применяется к *image
  */
-void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<double> > core)
+void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<double> > core, bool norm)
 {
 //списки в ядре располагаются по горизонтали, поэтому размеры берутся так а не иначе
     int coreW = static_cast<int>(core[0].count() / 2);
@@ -257,13 +257,16 @@ void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<doub
     int xSize = core[0].count();
     int ySize = core.count();
 
-//    //вычисляем сумму элементов ядра
-//    double coreSum = 0;
-//    for (int x = 0; x < xSize; ++x) {
-//        for (int y = 0; y < ySize; ++y) {
-//            coreSum += core[x][y];
-//        }
-//    }
+    //вычисляем сумму элементов ядра
+    double coreSum = 0;
+    if (norm)   //если нормируем
+        for (int x = 0; x < xSize; ++x) {
+            for (int y = 0; y < ySize; ++y) {
+                coreSum += core[y][x];
+            }
+        }
+
+
 
     //применяем свертку ко всем точкам
     for (int j = 0; j < height; ++j) //все строки
@@ -272,9 +275,12 @@ void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<doub
 
             for (int u = 0; u < ySize; u++)//для каждого ряда в ядре
                 for (int v = 0; v < xSize; v++)  //для каждого значения в ряду
-                    sum += imageWorking[(j + v) * widthWorking + (i + u)] * core[v][u]; //здесь учитываем что coreW == (core[0].count() - 1) / 2, coreH аналогично
+                    sum += imageWorking[(j + u) * widthWorking + (i + v)] * core[u][v]; //здесь учитываем что coreW == (core[0].count() - 1) / 2, coreH аналогично
 
-            image[j * width + i] = sum;
+            if (norm)
+                image[j * width + i] = sum / coreSum;
+            else
+                image[j * width + i] = sum;
         }
 }
 
@@ -351,9 +357,6 @@ void Graphic::gaussianFilterRGB(double sigma)
     if (halfSize  % 2 == 0)
         ++halfSize;
 
-//    double coeff = 1 / (2 * M_PI * sigma * sigma);
-//    double delitel = 2 * sigma * sigma;
-
     for (int i = -halfSize; i <= halfSize; i++){
         QList<double> str;
         for (int j = -halfSize; j <= halfSize; j++) {
@@ -365,6 +368,39 @@ void Graphic::gaussianFilterRGB(double sigma)
     convolutionUniversal(r, width, height, core); //непосредственно вычисляем
     convolutionUniversal(g, width, height, core); //непосредственно вычисляем
     convolutionUniversal(b, width, height, core); //непосредственно вычисляем
+}
+
+void Graphic::gaussianFilterRGBSep(double sigma)
+{
+    QList<QList<double> > core; //ядро свертки
+
+    double s = sigma * sigma * 2;
+
+    int halfSize = static_cast<int>(sigma) * 3;
+    if (halfSize  % 2 == 0)
+        ++halfSize;
+
+    QList<double> str;
+    for (int i = -halfSize; i <= halfSize; i++){
+        str.append(exp(- i * i / s) / (M_PI * s));
+    }
+    core.append(str);
+
+
+    convolutionUniversal(r, width, height, core, true); //непосредственно вычисляем
+    convolutionUniversal(g, width, height, core, true); //непосредственно вычисляем
+    convolutionUniversal(b, width, height, core, true); //непосредственно вычисляем
+
+    core.clear();
+    for (int i = -halfSize; i <= halfSize; i++){
+        QList<double> str;
+        str.append(exp(- i * i / s) / (M_PI * s));
+        core.append(str);
+    }
+
+    convolutionUniversal(r, width, height, core, true); //непосредственно вычисляем
+    convolutionUniversal(g, width, height, core, true); //непосредственно вычисляем
+    convolutionUniversal(b, width, height, core, true); //непосредственно вычисляем
 }
 
 void Graphic::setLIMIT(int value)

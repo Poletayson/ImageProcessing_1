@@ -65,12 +65,13 @@ public:
     void setGray ();    //установить значения интенсивности
     void setRGB ();    //установить значения цветов
 
-    void convolutionUniversal(double *image, int w, int h, QList<QList<double>> core);  //универсальная свертка, применяется к *image
+    void convolutionUniversal(double *image, int w, int h, QList<QList<double>> core, bool norm = false);  //универсальная свертка, применяется к *image
     void setDerivateX(); //получить массивы с частными производными
     void setDerivateY();
     void setGradient(); //получить величину градиента
     void gaussianFilter(double sigma);
     void gaussianFilterRGB(double sigma);
+    void gaussianFilterRGBSep(double sigma);
 
 
     void setLIMIT(int value);
