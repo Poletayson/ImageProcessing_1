@@ -275,8 +275,8 @@ void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<doub
 
             for (int u = 0; u < ySize; u++)//для каждого ряда в ядре
                 for (int v = 0; v < xSize; v++)  //для каждого значения в ряду
-                    sum += imageWorking[(j + u) * widthWorking + (i + v)] * core[u][v]; //здесь учитываем что coreW == (core[0].count() - 1) / 2, coreH аналогично
-
+                    sum += imageWorking[(j - u + ySize - 1) * widthWorking + (i - v + xSize - 1)] * core[u][v]; //здесь учитываем что coreW == (core[0].count() - 1) / 2, coreH аналогично
+//imageWorking[(j + u) * widthWorking + (i + v)] * core[u][v]
             if (norm)
                 image[j * width + i] = sum / coreSum;
             else
@@ -287,9 +287,9 @@ void Graphic::convolutionUniversal(double *image, int w, int h, QList<QList<doub
 void Graphic::setDerivateX()
 {
     QList<QList<double> > core; //ядро свертки
-    core.append(QList<double>({-1, 0, 1}));
-    core.append(QList<double>({-2, 0, 2}));
-    core.append(QList<double>({-1, 0, 1}));
+    core.append(QList<double>({1, 0, -1}));
+    core.append(QList<double>({2, 0, -2}));
+    core.append(QList<double>({1, 0, -1}));
 
     convolutionUniversal(imageDouble, width, height, core); //непосредственно вычисляем
 }
@@ -297,9 +297,9 @@ void Graphic::setDerivateX()
 void Graphic::setDerivateY()
 {
     QList<QList<double> > core; //ядро свертки
-    core.append(QList<double>({-1, -2, -1}));
-    core.append(QList<double>({0, 0, 0}));
     core.append(QList<double>({1, 2, 1}));
+    core.append(QList<double>({0, 0, 0}));
+    core.append(QList<double>({-1, -2, -1}));
 
     convolutionUniversal(imageDouble, width, height, core); //непосредственно вычисляем
 }
