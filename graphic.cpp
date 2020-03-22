@@ -6,6 +6,7 @@ Graphic::Graphic(QWidget *parent) : QGraphicsView(parent)
 {
     this->setAlignment(Qt::AlignCenter);        //выравнивание по центру
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    image = nullptr;
     imageItem = nullptr;
     reserve = nullptr;
     myScene = new QGraphicsScene ();
@@ -135,8 +136,10 @@ QImage *Graphic::getImage() const
 void Graphic::setImage(QImage *value)
 {
     image = new QImage (*value);
-    width = image->width();
-    height = image->height();
+//    width = image->width();
+//    height = image->height();
+
+    rgbImage = new DoubleImageRGB (value);
 }
 
 //установить значения интенсивности
@@ -213,20 +216,24 @@ void Graphic::setImageFromDouble()
 
 void Graphic::setImageFromRGB()
 {
-    QRgb *imageBytes[height];
-    //построчно сканируем изображение
-    for (int i = 0; i < height; i++){
-        imageBytes[i] = (QRgb*)(image->scanLine(i));
-    }
+//    if (image != nullptr)
+//        delete image;
+    rgbImage->getImage(image);
 
-    normalization255(r);
-    normalization255(g);
-    normalization255(b);
-    //устанавливаем значения для изображения
-    for (int j = 0; j < height; ++j) //все строки
-        for (int i = 0; i < width; ++i) {
-            imageBytes[j][i] = qRgb(static_cast<int>(r[j * width + i]), static_cast<int>(g[j * width + i]), static_cast<int>(b[j * width + i]));
-        }
+//    QRgb *imageBytes[height];
+//    //построчно сканируем изображение
+//    for (int i = 0; i < height; i++){
+//        imageBytes[i] = (QRgb*)(image->scanLine(i));
+//    }
+
+//    normalization255(r);
+//    normalization255(g);
+//    normalization255(b);
+//    //устанавливаем значения для изображения
+//    for (int j = 0; j < height; ++j) //все строки
+//        for (int i = 0; i < width; ++i) {
+//            imageBytes[j][i] = qRgb(static_cast<int>(r[j * width + i]), static_cast<int>(g[j * width + i]), static_cast<int>(b[j * width + i]));
+//        }
 }
 
 
@@ -365,9 +372,11 @@ void Graphic::gaussianFilterRGB(double sigma)
         core.append(str);
     }
 
-    convolutionUniversal(r, width, height, core); //непосредственно вычисляем
-    convolutionUniversal(g, width, height, core); //непосредственно вычисляем
-    convolutionUniversal(b, width, height, core); //непосредственно вычисляем
+    rgbImage->convolutionUniversal(core); //непосредственно вычисляем
+
+//    convolutionUniversal(r, width, height, core); //непосредственно вычисляем
+//    convolutionUniversal(g, width, height, core); //непосредственно вычисляем
+//    convolutionUniversal(b, width, height, core); //непосредственно вычисляем
 }
 
 void Graphic::gaussianFilterRGBSep(double sigma)
@@ -387,9 +396,10 @@ void Graphic::gaussianFilterRGBSep(double sigma)
     core.append(str);
 
 
-    convolutionUniversal(r, width, height, core, true); //непосредственно вычисляем
-    convolutionUniversal(g, width, height, core, true); //непосредственно вычисляем
-    convolutionUniversal(b, width, height, core, true); //непосредственно вычисляем
+    rgbImage->convolutionUniversal(core, true); //непосредственно вычисляем
+//    convolutionUniversal(r, width, height, core, true); //непосредственно вычисляем
+//    convolutionUniversal(g, width, height, core, true); //непосредственно вычисляем
+//    convolutionUniversal(b, width, height, core, true); //непосредственно вычисляем
 
     core.clear();
     for (int i = -halfSize; i <= halfSize; i++){
@@ -398,9 +408,10 @@ void Graphic::gaussianFilterRGBSep(double sigma)
         core.append(str);
     }
 
-    convolutionUniversal(r, width, height, core, true); //непосредственно вычисляем
-    convolutionUniversal(g, width, height, core, true); //непосредственно вычисляем
-    convolutionUniversal(b, width, height, core, true); //непосредственно вычисляем
+    rgbImage->convolutionUniversal(core, true); //непосредственно вычисляем
+//    convolutionUniversal(r, width, height, core, true); //непосредственно вычисляем
+//    convolutionUniversal(g, width, height, core, true); //непосредственно вычисляем
+//    convolutionUniversal(b, width, height, core, true); //непосредственно вычисляем
 }
 
 void Graphic::setLIMIT(int value)

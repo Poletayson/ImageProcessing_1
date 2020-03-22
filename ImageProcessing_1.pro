@@ -32,12 +32,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    doubleimagergb.cpp \
+    idoubleimage.cpp \
         main.cpp \
         mainwindow.cpp \
     graphic.cpp \
     threadgraphic.cpp
 
 HEADERS += \
+    doubleimagergb.h \
+    idoubleimage.h \
         mainwindow.h \
     graphic.h \
     threadgraphic.h

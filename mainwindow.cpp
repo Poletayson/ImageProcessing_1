@@ -43,7 +43,7 @@ MainWindow::~MainWindow()
 
 
 
-void MainWindow::getFile()             //выбираем список файлов
+void MainWindow::getFile()             //выбираем файл
 {
     #include <QDir>
     QString path = QApplication::applicationDirPath();  //QDir::currentPath();      //текущая директория
@@ -145,7 +145,7 @@ void MainWindow::setGauss()
     myGraphic2->setImage(myGraphic->getImage());
 
     delete image;
-    myGraphic2->setRGB();
+    //myGraphic2->setRGB();
     myGraphic2->gaussianFilterRGBSep(static_cast<double>(ui->horizontalSlider->value()) / 3); //применяем фильтр Гаусса
 
     myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image

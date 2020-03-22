@@ -1,6 +1,8 @@
 #ifndef GRAPHIC_H
 #define GRAPHIC_H
 
+#include "idoubleimage.h"
+
 #include <QWidget>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -11,7 +13,8 @@
 #include <QPainter>
 #include <QtMath>
 #include <QRect>
-#include <threadgraphic.h>
+#include "doubleimagergb.h"
+#include "idoubleimage.h"
 #include <QDebug>
 #include <QPainter>
 #include <QFile>
@@ -87,6 +90,8 @@ private:
     double *imageDouble;   //текущее изображение в виде матрицы double
     double *grayScale;   //
     double *r, *g, *b;   //
+
+    IDoubleImage *rgbImage;
 
     void normalization();
     void normalization255(double *img);
