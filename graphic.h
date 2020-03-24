@@ -14,6 +14,7 @@
 #include <QtMath>
 #include <QRect>
 #include "doubleimagergb.h"
+#include "doubleimagemono.h"
 #include "idoubleimage.h"
 #include <QDebug>
 #include <QPainter>
@@ -44,16 +45,12 @@ public:
     QGraphicsItemGroup* addRect (qreal x, qreal y, qreal w, qreal h, QPen* p, QGraphicsScene* sc);
 
 
-
-
-
-    QColor matrixColorMul (QColor colors[3][3], int matrix[3][3]);
-    QRgb matrixColorMul (QRgb colors[3][3], int matrix[3][3]);
-    unsigned char matrixMul (unsigned char channel[3][3], int matrix[3][3]);
-    QColor colorNormir (QColor colorX, QColor colorY);
-    QRgb colorNormir (QRgb colorX, QRgb colorY);
-    unsigned char componentNormir (unsigned char colorX, unsigned char colorY);
-
+//    QColor matrixColorMul (QColor colors[3][3], int matrix[3][3]);
+//    QRgb matrixColorMul (QRgb colors[3][3], int matrix[3][3]);
+//    unsigned char matrixMul (unsigned char channel[3][3], int matrix[3][3]);
+//    QColor colorNormir (QColor colorX, QColor colorY);
+//    QRgb colorNormir (QRgb colorX, QRgb colorY);
+//    unsigned char componentNormir (unsigned char colorX, unsigned char colorY);
 
 
 
@@ -65,8 +62,8 @@ public:
     void setImageFromDouble (); //установить текущее изображение из матрицы double
     void setImageFromRGB (); //установить текущее изображение из матриц цветов
 
-    void setGray ();    //установить значения интенсивности
-    void setRGB ();    //установить значения цветов
+//    void setGray ();    //установить значения интенсивности
+//    void setRGB ();    //установить значения цветов
 
     void convolutionUniversal(double *image, int w, int h, QList<QList<double>> core, bool norm = false);  //универсальная свертка, применяется к *image
     void setDerivateX(); //получить массивы с частными производными
@@ -85,16 +82,12 @@ private:
     int LIMIT = 225;
 
     QImage *image;
-    int width;
-    int height;
-    double *imageDouble;   //текущее изображение в виде матрицы double
-    double *grayScale;   //
-    double *r, *g, *b;   //
+//    int width;
+//    int height;
 
-    IDoubleImage *rgbImage;
+    IDoubleImage *imageRGB, *imageMono;
 
-    void normalization();
-    void normalization255(double *img);
+
 };
 
 #endif // GRAPHIC_H

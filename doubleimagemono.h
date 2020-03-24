@@ -1,0 +1,36 @@
+#ifndef DOUBLEIMAGEMONO_H
+#define DOUBLEIMAGEMONO_H
+
+#include "idoubleimage.h"
+
+#include <QImage>
+#include <QtMath>
+
+class DoubleImageMono : public IDoubleImage
+{
+    double *reserv;   //текущее изображение в виде матриц компонент цвета
+    double *imageDouble;   //текущее изображение в виде матриц компонент цвета
+
+    virtual void normalization255(double *img);
+    virtual void convolutionUniversalConcrete(double *image, QList<QList<double>> core, bool norm = false);  //универсальная свертка, применяется к *image
+
+    void setDerivateX(); //получить массивы с частными производными
+    void setDerivateY();
+
+    double *getReservCopy ();
+
+public:
+    DoubleImageMono();
+    DoubleImageMono(QImage *image);
+
+    virtual QImage *getImage ();    //построить изображение и вернуть
+    virtual void getImage (QImage *img);    //записать матрицы в заданное изображение
+
+    virtual void convolutionUniversal(QList<QList<double>> core, bool norm = false);  //универсальная свертка
+
+    void setGradient(); //получить величину градиента
+
+    double *getImageDouble() const;
+};
+
+#endif // DOUBLEIMAGEMONO_H

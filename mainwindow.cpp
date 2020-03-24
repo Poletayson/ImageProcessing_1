@@ -94,65 +94,60 @@ void MainWindow::on_horizontalSlider_valueChanged(int value)
 
 void MainWindow::setDerivateX()
 {
+    delete image;
+    delete myGraphic2->imageItem;
+
     myGraphic2->setImage(myGraphic->getImage());
 
-    delete image;
-    //myGraphic2->setImageDouble();   //устанавливаем значения в дабл
-    myGraphic2->setGray();  //переводим в GrayScale
     myGraphic2->setDerivateX(); //вычисляем частную производную по X
 
     myGraphic2->setImageFromDouble();   //переводим матрицу обратно в Image
-
     image = myGraphic2->getImage();
 
-    delete myGraphic2->imageItem;
     myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
 }
 
 void MainWindow::setDerivateY()
 {
+    delete image;
+    delete myGraphic2->imageItem;
+
     myGraphic2->setImage(myGraphic->getImage());
 
-    delete image;
-    myGraphic2->setGray();  //переводим в GrayScale
     myGraphic2->setDerivateY(); //вычисляем частную производную по Y
 
     myGraphic2->setImageFromDouble();   //переводим матрицу обратно в Image
-
     image = myGraphic2->getImage();
 
-    delete myGraphic2->imageItem;
     myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
 }
 
 void MainWindow::setGradient()
 {
+    delete image;
+    delete myGraphic2->imageItem;
     myGraphic2->setImage(myGraphic->getImage());
 
-    delete image;
-    myGraphic2->setGray();  //переводим в GrayScale
     myGraphic2->setGradient(); //вычисляем значения градиента
-    myGraphic2->setImageFromDouble();   //переводим матрицу обратно в Image
 
+    myGraphic2->setImageFromDouble();   //переводим матрицу обратно в Image
     image = myGraphic2->getImage();
 
-    delete myGraphic2->imageItem;
     myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image)); //устанавливаем новую картинку
 }
 
 void MainWindow::setGauss()
 {
+    delete image;
+    delete myGraphic2->imageItem;
+
     myGraphic2->setImage(myGraphic->getImage());
 
-    delete image;
-    //myGraphic2->setRGB();
     myGraphic2->gaussianFilterRGBSep(static_cast<double>(ui->horizontalSlider->value()) / 3); //применяем фильтр Гаусса
 
     myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
-
     image = myGraphic2->getImage();
 
-    delete myGraphic2->imageItem;
     myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
 }
 

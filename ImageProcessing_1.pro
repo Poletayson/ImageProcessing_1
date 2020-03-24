@@ -32,19 +32,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    doubleimagemono.cpp \
     doubleimagergb.cpp \
     idoubleimage.cpp \
         main.cpp \
         mainwindow.cpp \
-    graphic.cpp \
-    threadgraphic.cpp
+    graphic.cpp
 
 HEADERS += \
+    doubleimagemono.h \
     doubleimagergb.h \
     idoubleimage.h \
         mainwindow.h \
-    graphic.h \
-    threadgraphic.h
+    graphic.h
 
 
 FORMS += \

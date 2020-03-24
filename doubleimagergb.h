@@ -9,8 +9,6 @@
 
 class DoubleImageRGB : public IDoubleImage
 {
-
-
     double *r, *g, *b;   //текущее изображение в виде матриц компонент цвета
 
     virtual void normalization255(double *img);
