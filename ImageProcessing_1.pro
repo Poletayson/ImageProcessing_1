@@ -37,14 +37,16 @@ SOURCES += \
     idoubleimage.cpp \
         main.cpp \
         mainwindow.cpp \
-    graphic.cpp
+    graphic.cpp \
+    pyramideimage.cpp
 
 HEADERS += \
     doubleimagemono.h \
     doubleimagergb.h \
     idoubleimage.h \
         mainwindow.h \
-    graphic.h
+    graphic.h \
+    pyramideimage.h
 
 
 FORMS += \

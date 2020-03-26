@@ -12,6 +12,7 @@ public:
     virtual void getImage (QImage *IMG) = 0;    //записать матрицы в заданное изображение
 
     virtual void convolutionUniversal(QList<QList<double>> core, bool norm = false) = 0;  //универсальная свертка, применяется к *image
+    virtual void downSample() = 0;  //уменьшить размер в 2 раза
 
 protected:
     int width;

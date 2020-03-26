@@ -24,11 +24,11 @@ MainWindow::MainWindow(QWidget *parent) :
    connect(ui->buttonDerivateY, SIGNAL(clicked()), this, SLOT(setDerivateY ()));
    connect(ui->buttonGradient, SIGNAL(clicked()), this, SLOT(setGradient ()));
    connect(ui->ButtonGauss, SIGNAL(clicked()), this, SLOT(setGauss ()));
+   connect(ui->buttonPyramides, SIGNAL(clicked()), this, SLOT(getPyramides()));
 
    myGraphic2->setLIMIT(ui->horizontalSlider->value());
 
    ui->ButtonRepair->hide();
-   ui->spinBoxThreadCount->hide();
 
    image = new QImage ();
 }
@@ -39,6 +39,15 @@ MainWindow::~MainWindow()
 {
 
     delete ui;
+}
+
+void MainWindow::setInterfaceDisabled(bool f)
+{
+    ui->buttonDerivateX->setDisabled(f);
+    ui->buttonDerivateY->setDisabled(f);
+    ui->buttonGradient->setDisabled(f);
+    ui->ButtonGauss->setDisabled(f);
+    ui->buttonPyramides->setDisabled(f);
 }
 
 
@@ -124,6 +133,8 @@ void MainWindow::setDerivateY()
 
 void MainWindow::setGradient()
 {
+    setInterfaceDisabled(true);
+
     delete image;
     delete myGraphic2->imageItem;
     myGraphic2->setImage(myGraphic->getImage());
@@ -134,10 +145,13 @@ void MainWindow::setGradient()
     image = myGraphic2->getImage();
 
     myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image)); //устанавливаем новую картинку
+    setInterfaceDisabled(false);
 }
 
 void MainWindow::setGauss()
 {
+    setInterfaceDisabled(true);
+
     delete image;
     delete myGraphic2->imageItem;
 
@@ -149,6 +163,29 @@ void MainWindow::setGauss()
     image = myGraphic2->getImage();
 
     myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
+    setInterfaceDisabled(false);
+}
+
+void MainWindow::getPyramides()
+{
+    setInterfaceDisabled(true);
+
+    delete image;
+
+    myGraphic2->myScene->removeItem(myGraphic2->imageItem);
+    delete myGraphic2->imageItem;
+
+    myGraphic2->setImage(myGraphic->getImage());
+
+    myGraphic2->getPyramids(ui->spinBoxOctavaCount->value(), ui->spinBoxLevelCount->value(), ui->horizontalSlider->value() / 3); //строим пирамиду
+
+    myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
+    image = myGraphic2->getImage();
+
+
+    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
+
+    setInterfaceDisabled(false);
 }
 
 

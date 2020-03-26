@@ -13,10 +13,12 @@ class DoubleImageRGB : public IDoubleImage
 
     virtual void normalization255(double *img);
     virtual void convolutionUniversalConcrete(double *image, QList<QList<double>> core, bool norm = false);  //универсальная свертка, применяется к *image
+    virtual void downSample();  //уменьшить размер в 2 раза
 
 public:
     DoubleImageRGB();
     DoubleImageRGB(QImage *image);
+    DoubleImageRGB(DoubleImageRGB *image);
 
     virtual QImage *getImage ();    //построить изображение и вернуть
     virtual void getImage (QImage *img);    //записать матрицы в заданное изображение

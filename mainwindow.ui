@@ -17,28 +17,133 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="2" column="0">
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="0">
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item row="1" column="2" colspan="2">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <widget class="QSpinBox" name="spinBoxThreadCount">
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>50</number>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Число октав</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="ButtonGauss">
+         <widget class="QSpinBox" name="spinBoxOctavaCount">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>10</number>
+          </property>
+          <property name="value">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>Ф. Гаусса</string>
+           <string>Число уровней</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spinBoxLevelCount">
+          <property name="value">
+           <number>2</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="buttonPyramides">
+          <property name="text">
+           <string>Получить
+пирамиды</string>
           </property>
          </widget>
         </item>
        </layout>
       </item>
-      <item row="1" column="3">
+      <item row="1" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QPushButton" name="ButtonRepair">
+          <property name="text">
+           <string>Сброс</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="6">
+       <layout class="QVBoxLayout" name="verticalLayout_7">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>𝜎</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="horizontalSlider">
+          <property name="mouseTracking">
+           <bool>true</bool>
+          </property>
+          <property name="minimum">
+           <number>3</number>
+          </property>
+          <property name="maximum">
+           <number>40</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>3</number>
+          </property>
+          <property name="sliderPosition">
+           <number>3</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>𝜎1-𝜎0</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="horizontalSliderSigma2">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>5</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="7">
+       <layout class="QVBoxLayout" name="verticalLayout_4"/>
+      </item>
+      <item row="1" column="1">
        <layout class="QVBoxLayout" name="verticalLayout_8">
         <item>
          <widget class="QPushButton" name="buttonGradient">
@@ -62,48 +167,13 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="ButtonRepair">
+         <widget class="QPushButton" name="ButtonGauss">
           <property name="text">
-           <string>Сброс</string>
+           <string>Ф. Гаусса</string>
           </property>
          </widget>
         </item>
        </layout>
-      </item>
-      <item row="1" column="4">
-       <layout class="QVBoxLayout" name="verticalLayout_7">
-        <item>
-         <widget class="QSlider" name="horizontalSlider">
-          <property name="mouseTracking">
-           <bool>true</bool>
-          </property>
-          <property name="minimum">
-           <number>3</number>
-          </property>
-          <property name="maximum">
-           <number>30</number>
-          </property>
-          <property name="singleStep">
-           <number>1</number>
-          </property>
-          <property name="value">
-           <number>3</number>
-          </property>
-          <property name="sliderPosition">
-           <number>3</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="5">
-       <layout class="QVBoxLayout" name="verticalLayout_4"/>
-      </item>
-      <item row="1" column="2">
-       <layout class="QVBoxLayout" name="verticalLayout_5"/>
       </item>
      </layout>
     </item>

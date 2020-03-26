@@ -43,6 +43,8 @@ public:
     explicit MainWindow(QWidget *parent = Q_NULLPTR);
     ~MainWindow();
 
+    void setInterfaceDisabled(bool f);
+
 public slots:
     void setStart ();
 
@@ -57,6 +59,7 @@ private slots:
     void setDerivateY ();
     void setGradient ();    //получить градиент
     void setGauss ();    //
+    void getPyramides(); //
 
 private:
     Ui::MainWindow *ui;

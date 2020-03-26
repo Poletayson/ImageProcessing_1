@@ -71,6 +71,33 @@ void DoubleImageRGB::convolutionUniversalConcrete(double *image, QList<QList<dou
             }
 }
 
+void DoubleImageRGB::downSample()  //уменьшить размер в 2 раза
+{
+    int w = width;
+    int h = height;
+    width = width / 2;
+    height = height / 2;
+
+    double *rOld = r;
+    double *gOld = g;
+    double *bOld = b;
+
+    r = new double [height * width];
+    g = new double [height * width];
+    b = new double [height * width];
+
+    for (int j = 0; j < height; j++)
+        for (int i = 0; i < width; i++){
+            r[j * width + i] = rOld[j * 2 * w + i * 2];
+            g[j * width + i] = gOld[j * 2 * w + i * 2];
+            b[j * width + i] = bOld[j * 2 * w + i * 2];
+        }
+
+    delete [] rOld;
+    delete [] gOld;
+    delete [] bOld;
+}
+
 DoubleImageRGB::DoubleImageRGB()
 {
 
@@ -96,6 +123,26 @@ DoubleImageRGB::DoubleImageRGB(QImage *image)
             r[j * width + i] = static_cast<double>(qRed(imageBytes[j][i])) / 255;
             g[j * width + i] = static_cast<double>(qGreen(imageBytes[j][i])) / 255;
             b[j * width + i] = static_cast<double>(qBlue(imageBytes[j][i])) / 255;
+        }
+}
+
+DoubleImageRGB::DoubleImageRGB(DoubleImageRGB *image)
+{
+    width = image->width;
+    height = image->height;
+
+    r = new double [height * width];
+    g = new double [height * width];
+    b = new double [height * width];
+    double *ptrR = ((DoubleImageRGB*)image)->r;
+    double *ptrG = ((DoubleImageRGB*)image)->g;
+    double *ptrB = ((DoubleImageRGB*)image)->b;
+
+    for (int j = 0; j < height; j++)
+        for (int i = 0; i < width; i++){
+            r[j * width + i] = ptrR[j * width + i];
+            g[j * width + i] = ptrG[j * width + i];
+            b[j * width + i] = ptrB[j * width + i];
         }
 }
 

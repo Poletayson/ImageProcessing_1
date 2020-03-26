@@ -3,6 +3,7 @@
 
 #include "idoubleimage.h"
 
+#include <QApplication>
 #include <QWidget>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -16,6 +17,7 @@
 #include "doubleimagergb.h"
 #include "doubleimagemono.h"
 #include "idoubleimage.h"
+#include "pyramideimage.h"
 #include <QDebug>
 #include <QPainter>
 #include <QFile>
@@ -73,6 +75,8 @@ public:
     void gaussianFilterRGB(double sigma);
     void gaussianFilterRGBSep(double sigma);
 
+    void getPyramids(int octaveCount, int levelCount, double sigma0); //построить пирамиду
+
 
     void setLIMIT(int value);
 
@@ -82,8 +86,7 @@ private:
     int LIMIT = 225;
 
     QImage *image;
-//    int width;
-//    int height;
+    QList<PyramideImage*> pyramide;
 
     IDoubleImage *imageRGB, *imageMono;
 

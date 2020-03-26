@@ -323,6 +323,38 @@ void Graphic::gaussianFilterRGBSep(double sigma)
     imageRGB->convolutionUniversal(core, true); //непосредственно вычисляем
 }
 
+void Graphic::getPyramids(int octaveCount, int levelCount, double sigma0)
+{
+    int k = pow(2.0, 1.0 / levelCount); //интервал между масштабами
+
+    //удаляем старую пирамиду
+    for (int var = 0; var < pyramide.count(); ++var) {
+        delete pyramide[var];
+    }
+    pyramide.clear();
+
+    for(int i = 0; i < octaveCount; i++){
+        pyramide.append(new PyramideImage(imageRGB, i, 0));
+        double sigma = sigma0;
+        for (int j = 1; j < levelCount; j++){
+            gaussianFilterRGB(sigma);
+            sigma *= k;
+            pyramide.append(new PyramideImage(imageRGB, i, j));
+        }
+        sigma = sigma0; //возвращаем сигма к прежнему значению
+
+        if (i < octaveCount - 1)
+            imageRGB->downSample(); //уменьшаем изображение
+    }
+
+    foreach (PyramideImage *currImage, pyramide) {
+        QString path = QApplication::applicationDirPath() + "/Input/Pyramide/pyramide" + QString::number(currImage->getOctaveNum()) + "-"  + QString::number(currImage->getLayerNum()) + ".jpg";      //текущая директория
+
+        currImage->getImage()->getImage()->save(path);
+    }
+
+}
+
 void Graphic::setLIMIT(int value)
 {
     LIMIT = value;
