@@ -323,9 +323,11 @@ void Graphic::gaussianFilterRGBSep(double sigma)
     imageRGB->convolutionUniversal(core, true); //непосредственно вычисляем
 }
 
-void Graphic::getPyramids(int octaveCount, int levelCount, double sigma0)
+void Graphic::getPyramide(int octaveCount, int levelCount, double sigmaA, double sigma0)
 {
-    int k = pow(2.0, 1.0 / levelCount); //интервал между масштабами
+    double k = pow(2.0, 1.0 / levelCount); //интервал между масштабами
+    double sigmaB = sqrt(sigma0 * sigma0 - sigmaA * sigmaA);    //с каким сигма нужно сгладить, чтобы получить с требуемым sigma0
+    gaussianFilterRGBSep(sigmaB);   //досглаживаем изображение
 
     //удаляем старую пирамиду
     for (int var = 0; var < pyramide.count(); ++var) {
@@ -333,26 +335,68 @@ void Graphic::getPyramids(int octaveCount, int levelCount, double sigma0)
     }
     pyramide.clear();
 
+    double sigmaEff = sigma0;
+    QList <PyramideImage*> *oneOctave;  //одна октава
+    PyramideImage *currentLayer;
+
+
     for(int i = 0; i < octaveCount; i++){
-        pyramide.append(new PyramideImage(imageRGB, i, 0));
+        oneOctave = new QList <PyramideImage*>();   //создаем новую октаву
         double sigma = sigma0;
+
+        currentLayer = new PyramideImage(imageRGB, i, 0);   //создаем новый слой и добавляем в пирамиду
+        currentLayer->setSigmaLocal(sigma);
+        currentLayer->setSigmaEffective(sigmaEff);
+        oneOctave->append(currentLayer);
+
         for (int j = 1; j < levelCount; j++){
-            gaussianFilterRGB(sigma);
+            gaussianFilterRGBSep(sigma);
             sigma *= k;
-            pyramide.append(new PyramideImage(imageRGB, i, j));
+            sigmaEff *= k;
+            currentLayer = new PyramideImage(imageRGB, i, j);   //создаем новый слой и добавляем в пирамиду
+            currentLayer->setSigmaLocal(sigma);
+            currentLayer->setSigmaEffective(sigmaEff);
+            oneOctave->append(currentLayer);
         }
-        sigma = sigma0; //возвращаем сигма к прежнему значению
+        pyramide.append(new Octave(oneOctave, i));
 
         if (i < octaveCount - 1)
             imageRGB->downSample(); //уменьшаем изображение
     }
 
-    foreach (PyramideImage *currImage, pyramide) {
-        QString path = QApplication::applicationDirPath() + "/Input/Pyramide/pyramide" + QString::number(currImage->getOctaveNum()) + "-"  + QString::number(currImage->getLayerNum()) + ".jpg";      //текущая директория
+    //сохраняем
+    foreach (Octave *octave, pyramide)
+        foreach (PyramideImage *currImage, *octave->getLayers()) {
+            QString path = QApplication::applicationDirPath() + "/Input/Pyramide/pyramide" + QString::number(currImage->getOctaveNum() + 1) + "-"  + QString::number(currImage->getLayerNum() + 1) + ".jpg";      //текущая директория
 
-        currImage->getImage()->getImage()->save(path);
+            currImage->getImage()->getImage()->save(path);
+        }
+
+}
+
+//функция L(x, y, sigma)
+double Graphic::getL(QList<Octave *> pyramide, int y, int x, double sigma, int colorNum)
+{
+    //компаратор для сравнения двух слоев, у какого sigmaEff ближе к sigma
+    auto comp = [sigma](const PyramideImage* _first_layer, const PyramideImage* _second_layer) {
+        return fabs(_first_layer->getSigmaEffective() - sigma) < fabs(_second_layer->getSigmaEffective() - sigma);
+    };
+
+    PyramideImage* target_layer = pyramide.front()->getLayers()->first();
+    int octaveLevel = pyramide.front()->getOctave();
+    for (Octave * octave : pyramide) {
+        PyramideImage* layer = std::min_element(octave->getLayers()->begin(), octave->getLayers()->end(), comp).i->t(); //выбираем наиболее близкий слой из октавы
+        if (comp(layer, target_layer)) {
+            target_layer = layer;
+            octaveLevel = octave->getOctave();
+        }
     }
 
+    int w = target_layer->getImage()->getWidth();   //ширина изображения
+    y = static_cast<int>(y / pow(2.0, octaveLevel)); //учитываем, что на следующих октавах изображения меньше по размеру
+    x = static_cast<int>(x / pow(2.0, octaveLevel));
+
+    return ((DoubleImageRGB*)target_layer->getImage())->getColorMatrix(colorNum)[y * w + x];
 }
 
 void Graphic::setLIMIT(int value)

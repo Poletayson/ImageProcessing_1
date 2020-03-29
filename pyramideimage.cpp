@@ -30,6 +30,26 @@ void PyramideImage::setImage(IDoubleImage *value)
     image = value;
 }
 
+double PyramideImage::getSigmaLocal() const
+{
+    return sigmaLocal;
+}
+
+void PyramideImage::setSigmaLocal(double value)
+{
+    sigmaLocal = value;
+}
+
+double PyramideImage::getSigmaEffective() const
+{
+    return sigmaEffective;
+}
+
+void PyramideImage::setSigmaEffective(double value)
+{
+    sigmaEffective = value;
+}
+
 PyramideImage::PyramideImage(IDoubleImage *img, int octave, int layer)
 {
     octaveNum = octave;

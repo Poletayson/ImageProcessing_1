@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
    connect(ui->buttonDerivateY, SIGNAL(clicked()), this, SLOT(setDerivateY ()));
    connect(ui->buttonGradient, SIGNAL(clicked()), this, SLOT(setGradient ()));
    connect(ui->ButtonGauss, SIGNAL(clicked()), this, SLOT(setGauss ()));
-   connect(ui->buttonPyramides, SIGNAL(clicked()), this, SLOT(getPyramides()));
+   connect(ui->buttonPyramides, SIGNAL(clicked()), this, SLOT(getPyramide()));
 
    myGraphic2->setLIMIT(ui->horizontalSlider->value());
 
@@ -157,7 +157,7 @@ void MainWindow::setGauss()
 
     myGraphic2->setImage(myGraphic->getImage());
 
-    myGraphic2->gaussianFilterRGBSep(static_cast<double>(ui->horizontalSlider->value()) / 3); //применяем фильтр Гаусса
+    myGraphic2->gaussianFilterRGBSep(static_cast<double>(ui->horizontalSlider->value()) / 10); //применяем фильтр Гаусса
 
     myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
     image = myGraphic2->getImage();
@@ -166,7 +166,7 @@ void MainWindow::setGauss()
     setInterfaceDisabled(false);
 }
 
-void MainWindow::getPyramides()
+void MainWindow::getPyramide()
 {
     setInterfaceDisabled(true);
 
@@ -177,7 +177,7 @@ void MainWindow::getPyramides()
 
     myGraphic2->setImage(myGraphic->getImage());
 
-    myGraphic2->getPyramids(ui->spinBoxOctavaCount->value(), ui->spinBoxLevelCount->value(), ui->horizontalSlider->value() / 3); //строим пирамиду
+    myGraphic2->getPyramide(ui->spinBoxOctavaCount->value(), ui->spinBoxLevelCount->value(), ui->horizontalSliderSigma2->value() / 10, ui->horizontalSlider->value() / 10); //строим пирамиду
 
     myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
     image = myGraphic2->getImage();

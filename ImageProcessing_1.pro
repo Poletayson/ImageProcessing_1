@@ -38,6 +38,7 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     graphic.cpp \
+    octave.cpp \
     pyramideimage.cpp
 
 HEADERS += \
@@ -46,6 +47,7 @@ HEADERS += \
     idoubleimage.h \
         mainwindow.h \
     graphic.h \
+    octave.h \
     pyramideimage.h
 
 

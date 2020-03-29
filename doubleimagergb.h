@@ -24,6 +24,8 @@ public:
     virtual void getImage (QImage *img);    //записать матрицы в заданное изображение
 
     virtual void convolutionUniversal(QList<QList<double>> core, bool norm = false);  //универсальная свертка
+
+    double *getColorMatrix (int colNum);
 };
 
 #endif // DOUBLEIMAGERGB_H

@@ -14,6 +14,10 @@ public:
     virtual void convolutionUniversal(QList<QList<double>> core, bool norm = false) = 0;  //универсальная свертка, применяется к *image
     virtual void downSample() = 0;  //уменьшить размер в 2 раза
 
+    int getWidth() const;
+
+    int getHeight() const;
+
 protected:
     int width;
     int height;

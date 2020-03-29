@@ -18,6 +18,7 @@
 #include "doubleimagemono.h"
 #include "idoubleimage.h"
 #include "pyramideimage.h"
+#include "octave.h"
 #include <QDebug>
 #include <QPainter>
 #include <QFile>
@@ -75,8 +76,8 @@ public:
     void gaussianFilterRGB(double sigma);
     void gaussianFilterRGBSep(double sigma);
 
-    void getPyramids(int octaveCount, int levelCount, double sigma0); //построить пирамиду
-
+    void getPyramide(int octaveCount, int levelCount, double sigmaA, double sigma0); //построить пирамиду
+    double getL(QList<Octave*> pyramide, int y, int x, double sigma, int colorNum); //функция L(x, y, sigma)
 
     void setLIMIT(int value);
 
@@ -86,7 +87,7 @@ private:
     int LIMIT = 225;
 
     QImage *image;
-    QList<PyramideImage*> pyramide;
+    QList<Octave*> pyramide;    //пирамида, состоящая из октав
 
     IDoubleImage *imageRGB, *imageMono;
 

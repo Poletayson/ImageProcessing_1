@@ -59,7 +59,7 @@ private slots:
     void setDerivateY ();
     void setGradient ();    //получить градиент
     void setGauss ();    //
-    void getPyramides(); //
+    void getPyramide(); //построить пирамиду
 
 private:
     Ui::MainWindow *ui;

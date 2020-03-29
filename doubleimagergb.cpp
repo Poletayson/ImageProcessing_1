@@ -193,3 +193,17 @@ void DoubleImageRGB::convolutionUniversal(QList<QList<double> > core, bool norm)
     convolutionUniversalConcrete(g, core, norm);
     convolutionUniversalConcrete(b, core, norm);
 }
+
+double *DoubleImageRGB::getColorMatrix(int colNum)
+{
+    switch (colNum) {
+    case 1:
+        return r;
+    case 2:
+        return g;
+    case 3:
+        return b;
+    default:
+        return nullptr;
+    }
+}

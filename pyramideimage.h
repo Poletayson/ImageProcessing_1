@@ -10,6 +10,9 @@ class PyramideImage
     int layerNum;
     IDoubleImage *image;
 
+    double sigmaLocal;
+    double sigmaEffective;
+
 public:
     PyramideImage(IDoubleImage *img, int octave, int layer);
     int getOctaveNum() const;
@@ -18,6 +21,10 @@ public:
     void setLayerNum(int value);
     IDoubleImage *getImage() const;
     void setImage(IDoubleImage *value);
+    double getSigmaLocal() const;
+    void setSigmaLocal(double value);
+    double getSigmaEffective() const;
+    void setSigmaEffective(double value);
 };
 
 #endif // PYRAMIDEIMAGE_H
