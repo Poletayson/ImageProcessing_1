@@ -325,9 +325,17 @@ void Graphic::gaussianFilterRGBSep(double sigma)
 
 void Graphic::getPyramide(int octaveCount, int levelCount, double sigmaA, double sigma0)
 {
-    double k = pow(2.0, 1.0 / levelCount); //интервал между масштабами
+    double k = pow(2.0, 1.0 / (levelCount - 1)); //интервал между масштабами
     double sigmaB = sqrt(sigma0 * sigma0 - sigmaA * sigmaA);    //с каким сигма нужно сгладить, чтобы получить с требуемым sigma0
     gaussianFilterRGBSep(sigmaB);   //досглаживаем изображение
+
+    double sigma[levelCount - 1];   //массив с sigma, которые будут применяться к слоям
+    double sigmaOld = sigma0;
+    for (int i = 0; i < levelCount - 1; i++) {
+        double sigmaNew = sigmaOld * k;
+        sigma[i] = sqrt(sigmaNew * sigmaNew - sigmaOld * sigmaOld);
+        sigmaOld = sigmaNew;
+    }
 
     //удаляем старую пирамиду
     for (int var = 0; var < pyramide.count(); ++var) {
@@ -340,21 +348,22 @@ void Graphic::getPyramide(int octaveCount, int levelCount, double sigmaA, double
     PyramideImage *currentLayer;
 
 
+
     for(int i = 0; i < octaveCount; i++){
         oneOctave = new QList <PyramideImage*>();   //создаем новую октаву
-        double sigma = sigma0;
+        double sigmaLocal = sigma0;
 
         currentLayer = new PyramideImage(imageRGB, i, 0);   //создаем новый слой и добавляем в пирамиду
-        currentLayer->setSigmaLocal(sigma);
+        currentLayer->setSigmaLocal(sigmaLocal);
         currentLayer->setSigmaEffective(sigmaEff);
         oneOctave->append(currentLayer);
 
         for (int j = 1; j < levelCount; j++){
-            gaussianFilterRGBSep(sigma);
-            sigma *= k;
+            gaussianFilterRGBSep(sigma[j - 1]);
+            sigmaLocal *= k;
             sigmaEff *= k;
             currentLayer = new PyramideImage(imageRGB, i, j);   //создаем новый слой и добавляем в пирамиду
-            currentLayer->setSigmaLocal(sigma);
+            currentLayer->setSigmaLocal(sigmaLocal);
             currentLayer->setSigmaEffective(sigmaEff);
             oneOctave->append(currentLayer);
         }
