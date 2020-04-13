@@ -5,6 +5,14 @@ double *DoubleImageMono::getImageDouble() const
     return imageDouble;
 }
 
+double DoubleImageMono::getPixel(int x, int y) const //получит значение писеля в заданной точке
+{
+    int i, j;
+    i = x <= 0 ? 0 : (x >= width - 1 ? width - 1 : x);
+    j = y <= 0 ? 0 : (y >= height - 1 ? height - 1 : y);
+    return imageDouble[j * width + i];
+}
+
 void DoubleImageMono::normalization255(double *img)
 {
     double min = 0, max = 1;

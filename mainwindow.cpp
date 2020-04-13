@@ -188,4 +188,23 @@ void MainWindow::getPyramide()
     setInterfaceDisabled(false);
 }
 
+void MainWindow::setMoravek(double threshold)
+{
+    setInterfaceDisabled(true);
+
+    delete image;
+    delete myGraphic2->imageItem;
+
+    myGraphic2->setImage(myGraphic->getImage());
+
+    myGraphic2->setMoravek(threshold); //оператор Моравека
+
+    myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
+    image = myGraphic2->getImage();
+
+    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
+
+    setInterfaceDisabled(false);
+}
+
 

@@ -79,6 +79,8 @@ public:
     void getPyramide(int octaveCount, int levelCount, double sigmaA, double sigma0); //построить пирамиду
     double getL(QList<Octave*> pyramide, int y, int x, double sigma, int colorNum); //функция L(x, y, sigma)
 
+    void setMoravek (double threshold);    //
+
     void setLIMIT(int value);
 
 public slots:

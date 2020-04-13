@@ -61,6 +61,8 @@ private slots:
     void setGauss ();    //
     void getPyramide(); //построить пирамиду
 
+    void setMoravek (double threshold);    //
+
 private:
     Ui::MainWindow *ui;
 

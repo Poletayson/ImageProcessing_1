@@ -408,6 +408,11 @@ double Graphic::getL(QList<Octave *> pyramide, int y, int x, double sigma, int c
     return ((DoubleImageRGB*)target_layer->getImage())->getColorMatrix(colorNum)[y * w + x];
 }
 
+void Graphic::setMoravek(double threshold)
+{
+
+}
+
 void Graphic::setLIMIT(int value)
 {
     LIMIT = value;
