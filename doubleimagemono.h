@@ -6,6 +6,7 @@
 #include <QImage>
 #include <QtMath>
 
+
 class DoubleImageMono : public IDoubleImage
 {
     double *reserv;   //текущее изображение в виде матриц компонент цвета

@@ -98,6 +98,13 @@ void DoubleImageRGB::downSample()  //уменьшить размер в 2 раз
     delete [] bOld;
 }
 
+void DoubleImageRGB::setPixel(int x, int y, double r, double g, double b)
+{
+    (this->r)[y * width + x] = r;
+    (this->g)[y * width + x] = g;
+    (this->b)[y * width + x] = b;
+}
+
 DoubleImageRGB::DoubleImageRGB()
 {
 

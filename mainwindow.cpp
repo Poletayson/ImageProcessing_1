@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
    connect(ui->buttonGradient, SIGNAL(clicked()), this, SLOT(setGradient ()));
    connect(ui->ButtonGauss, SIGNAL(clicked()), this, SLOT(setGauss ()));
    connect(ui->buttonPyramides, SIGNAL(clicked()), this, SLOT(getPyramide()));
+   connect(ui->buttonMoravek, SIGNAL(clicked()), this, SLOT(setMoravek()));
 
    myGraphic2->setLIMIT(ui->horizontalSlider->value());
 
@@ -188,7 +189,7 @@ void MainWindow::getPyramide()
     setInterfaceDisabled(false);
 }
 
-void MainWindow::setMoravek(double threshold)
+void MainWindow::setMoravek()
 {
     setInterfaceDisabled(true);
 
@@ -197,7 +198,7 @@ void MainWindow::setMoravek(double threshold)
 
     myGraphic2->setImage(myGraphic->getImage());
 
-    myGraphic2->setMoravek(threshold); //оператор Моравека
+    myGraphic2->setMoravek(2, ui->horizontalSliderPointsCount->value()); //оператор Моравека
 
     myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
     image = myGraphic2->getImage();

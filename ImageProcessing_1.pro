@@ -35,6 +35,7 @@ SOURCES += \
     doubleimagemono.cpp \
     doubleimagergb.cpp \
     idoubleimage.cpp \
+    interestingpoint.cpp \
         main.cpp \
         mainwindow.cpp \
     graphic.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     doubleimagemono.h \
     doubleimagergb.h \
     idoubleimage.h \
+    interestingpoint.h \
         mainwindow.h \
     graphic.h \
     octave.h \

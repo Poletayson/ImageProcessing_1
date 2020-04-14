@@ -66,6 +66,20 @@
       <item row="1" column="0">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
+         <widget class="QPushButton" name="buttonMoravek">
+          <property name="text">
+           <string>Оп. Моравека</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="buttonHarris">
+          <property name="text">
+           <string>Оп. Харриса</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="ButtonRepair">
           <property name="text">
            <string>Сброс</string>
@@ -132,6 +146,34 @@
           </property>
           <property name="sliderPosition">
            <number>16</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Число точек</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="horizontalSliderPointsCount">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>4000</number>
+          </property>
+          <property name="value">
+           <number>200</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>

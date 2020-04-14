@@ -408,13 +408,57 @@ double Graphic::getL(QList<Octave *> pyramide, int y, int x, double sigma, int c
     return ((DoubleImageRGB*)target_layer->getImage())->getColorMatrix(colorNum)[y * w + x];
 }
 
-void Graphic::setMoravek(double threshold)
-{
 
+void Graphic::setMoravek(int winSize, int pointCount)
+{
+    int w = imageMono->getWidth();
+    int h = imageMono->getHeight();
+    QList <InterestingPoint> interestingPoints;
+    //double *s = new double[w * h]; //массив контрастностей
+
+    //вычисляем во всех точках
+    for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
+            double sLocal = std::numeric_limits<double>::max(); //сначала берем максимальное число
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    if (dx != 0 && dy != 0) {
+                        double c = getC(winSize, i, j, dx, dy); //значение коэфф. при заданном векторе сдвига
+                        sLocal = std::min(sLocal, c);
+                    }
+                }
+            }
+            interestingPoints.append(InterestingPoint(i, j, sLocal));
+        }
+    }
+
+    std::sort(interestingPoints.begin(), interestingPoints.end(), InterestingPoint::operatorMore);  //сортируем в порядке убывания
+
+    while (interestingPoints.length() > pointCount)
+        interestingPoints.removeLast(); //оставляем самые-самые точки
+
+    foreach (InterestingPoint point, interestingPoints) {
+        imageRGB->setPixel(point.getX(), point.getY(), 1, 0, 0);  //красим точки
+    }
 }
 
 void Graphic::setLIMIT(int value)
 {
     LIMIT = value;
+}
+
+double Graphic::getC(int winSize, int x, int y, int dx, int dy)
+{
+    double sum = 0;
+    auto winSizeHalf = winSize / 2;
+
+    for (int u = -winSizeHalf; u <= winSizeHalf; u++) {
+        for (int v = -winSizeHalf; v <= winSizeHalf; v++) {
+            double tmp =  ((DoubleImageMono*)imageMono)->getPixel(x + u, y + v) - ((DoubleImageMono*)imageMono)->getPixel(x + u + dx, y + v + dy);
+            sum += tmp * tmp;
+        }
+    }
+
+    return sum;
 }
 

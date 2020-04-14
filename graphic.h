@@ -19,6 +19,7 @@
 #include "idoubleimage.h"
 #include "pyramideimage.h"
 #include "octave.h"
+#include "interestingpoint.h"
 #include <QDebug>
 #include <QPainter>
 #include <QFile>
@@ -79,7 +80,7 @@ public:
     void getPyramide(int octaveCount, int levelCount, double sigmaA, double sigma0); //построить пирамиду
     double getL(QList<Octave*> pyramide, int y, int x, double sigma, int colorNum); //функция L(x, y, sigma)
 
-    void setMoravek (double threshold);    //
+    void setMoravek (int winSize, int pointCount);    //применить оператор Моравека
 
     void setLIMIT(int value);
 
@@ -91,7 +92,10 @@ private:
     QImage *image;
     QList<Octave*> pyramide;    //пирамида, состоящая из октав
 
-    IDoubleImage *imageRGB, *imageMono;
+    DoubleImageMono *imageMono;
+    DoubleImageRGB *imageRGB;
+
+    double getC(int winSize, int x, int y, int dx, int dy);
 
 
 };
