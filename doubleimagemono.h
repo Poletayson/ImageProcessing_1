@@ -15,9 +15,6 @@ class DoubleImageMono : public IDoubleImage
     virtual void normalization255(double *img);
     virtual void convolutionUniversalConcrete(double *image, QList<QList<double>> core, bool norm = false);  //универсальная свертка, применяется к *image
 
-    void setDerivateX(); //получить массивы с частными производными
-    void setDerivateY();
-
     double *getReservCopy ();
 
 public:
@@ -30,6 +27,8 @@ public:
     virtual void convolutionUniversal(QList<QList<double>> core, bool norm = false);  //универсальная свертка
     virtual void downSample(){}  //уменьшить размер в 2 раза
 
+    void setDerivateX(); //получить массивы с частными производными
+    void setDerivateY();
     void setGradient(); //получить величину градиента
 
     double *getImageDouble() const;

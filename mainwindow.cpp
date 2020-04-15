@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
    connect(ui->ButtonGauss, SIGNAL(clicked()), this, SLOT(setGauss ()));
    connect(ui->buttonPyramides, SIGNAL(clicked()), this, SLOT(getPyramide()));
    connect(ui->buttonMoravek, SIGNAL(clicked()), this, SLOT(setMoravek()));
+   connect(ui->buttonHarris, SIGNAL(clicked()), this, SLOT(setHarris()));
 
    myGraphic2->setLIMIT(ui->horizontalSlider->value());
 
@@ -198,7 +199,26 @@ void MainWindow::setMoravek()
 
     myGraphic2->setImage(myGraphic->getImage());
 
-    myGraphic2->setMoravek(2, ui->horizontalSliderPointsCount->value()); //оператор Моравека
+    myGraphic2->setMoravek(5, ui->horizontalSliderPointsCount->value()); //оператор Моравека
+
+    myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
+    image = myGraphic2->getImage();
+
+    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
+
+    setInterfaceDisabled(false);
+}
+
+void MainWindow::setHarris()
+{
+    setInterfaceDisabled(true);
+
+    delete image;
+    delete myGraphic2->imageItem;
+
+    myGraphic2->setImage(myGraphic->getImage());
+
+    myGraphic2->setHarris(5, ui->horizontalSliderPointsCount->value()); //оператор Харриса
 
     myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
     image = myGraphic2->getImage();

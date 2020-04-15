@@ -61,7 +61,8 @@ private slots:
     void setGauss ();    //
     void getPyramide(); //построить пирамиду
 
-    void setMoravek ();    //
+    void setMoravek ();    //оператор Моравека
+    void setHarris ();    //оператор Харриса
 
 private:
     Ui::MainWindow *ui;

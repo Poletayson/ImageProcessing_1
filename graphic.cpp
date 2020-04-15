@@ -414,7 +414,6 @@ void Graphic::setMoravek(int winSize, int pointCount)
     int w = imageMono->getWidth();
     int h = imageMono->getHeight();
     QList <InterestingPoint> interestingPoints;
-    //double *s = new double[w * h]; //массив контрастностей
 
     //вычисляем во всех точках
     for (int j = 0; j < h; j++) {
@@ -440,6 +439,64 @@ void Graphic::setMoravek(int winSize, int pointCount)
     foreach (InterestingPoint point, interestingPoints) {
         imageRGB->setPixel(point.getX(), point.getY(), 1, 0, 0);  //красим точки
     }
+}
+
+void Graphic::setHarris(int winSize, int pointCount, double k)
+{
+    //находим производные
+    DoubleImageMono dx = DoubleImageMono(*imageMono);
+    DoubleImageMono dy = DoubleImageMono(*imageMono);
+    dx.setDerivateX();
+    dy.setDerivateY();
+    QList <InterestingPoint> interestingPoints;
+
+    int w = imageMono->getWidth();
+    int h = imageMono->getHeight();
+    double *a = new double [w * h];
+    double *b = new double [w * h];
+    double *c = new double [w * h];
+    int halfSize = winSize / 2;
+
+
+
+    for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
+            double sumA = 0, sumB = 0, sumC = 0;
+            for (int u = -halfSize; u <= halfSize; u++) {
+                for (int v = -halfSize; v <= halfSize; v++) {
+                    double i_x = dx.getPixel(i + u, j + v);
+                    double i_y = dy.getPixel(i + u, j + v);
+                    sumA += i_x * i_x;
+                    sumB += i_x * i_y;
+                    sumC += i_y * i_y;
+                }
+            }
+            a[j * w + i] = sumA;
+            b[j * w + i] = sumB;
+            c[j * w + i] = sumC;
+        }
+    }
+
+    //CMyImage result(_image.getHeight(), _image.getWidth());
+
+    for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
+            double cHarris = a[j * w + i] * c[j * w + i] - b[j * w + i] * b[j * w + i] - k * (a[j * w + i] + c[j * w + i]) * (a[j * w + i] + c[j * w + i]);
+            interestingPoints.append(InterestingPoint(i, j, cHarris));
+        }
+    }
+
+    std::sort(interestingPoints.begin(), interestingPoints.end(), InterestingPoint::operatorLess);  //сортируем в порядке возрастания
+
+    while (interestingPoints.length() > pointCount)
+        interestingPoints.removeLast(); //оставляем самые-самые точки
+
+    foreach (InterestingPoint point, interestingPoints) {
+        imageRGB->setPixel(point.getX(), point.getY(), 1, 0, 0);  //красим точки
+    }
+    delete[] a;
+    delete[] b;
+    delete[] c;
 }
 
 void Graphic::setLIMIT(int value)

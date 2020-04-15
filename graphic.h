@@ -81,6 +81,7 @@ public:
     double getL(QList<Octave*> pyramide, int y, int x, double sigma, int colorNum); //функция L(x, y, sigma)
 
     void setMoravek (int winSize, int pointCount);    //применить оператор Моравека
+    void setHarris (int winSize, int pointCount, double k = 0.06);    //применить оператор Харриса
 
     void setLIMIT(int value);
 
