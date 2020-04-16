@@ -13,6 +13,12 @@ double DoubleImageMono::getPixel(int x, int y) const //получит значе
     return imageDouble[j * width + i];
 }
 
+void DoubleImageMono::setPixel(int x, int y, double c)
+{
+    if (x >= 0 && x < width && y > 0 && y <height)
+        (this->imageDouble)[y * width + x] = c;
+}
+
 void DoubleImageMono::normalization255(double *img)
 {
     double min = 0, max = 1;

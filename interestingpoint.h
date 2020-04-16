@@ -1,6 +1,7 @@
 #ifndef INTERESTINGPOINT_H
 #define INTERESTINGPOINT_H
 
+#include "math.h"
 
 class InterestingPoint
 {
@@ -16,6 +17,8 @@ public:
 
     static bool operatorLess (InterestingPoint p1, InterestingPoint p2);
     static bool operatorMore (InterestingPoint p1, InterestingPoint p2);
+
+    static double getDistance (InterestingPoint a, InterestingPoint b);
 
 private:
     int x, y;

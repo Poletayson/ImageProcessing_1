@@ -43,3 +43,11 @@ bool InterestingPoint::operatorMore(InterestingPoint p1, InterestingPoint p2)
     else
         return false;
 }
+
+//расстояние между точками
+double InterestingPoint::getDistance(InterestingPoint a, InterestingPoint b)
+{
+    double xd = a.getX() - b.getX();
+    double yd = a.getY() - b.getY();
+    return  sqrt(xd * xd + yd * yd);
+}

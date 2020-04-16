@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QFile>
+#include <QMutableListIterator>
 
 class Graphic : public QGraphicsView
 {
@@ -76,12 +77,13 @@ public:
     void gaussianFilter(double sigma);
     void gaussianFilterRGB(double sigma);
     void gaussianFilterRGBSep(double sigma);
+    void gaussianFilterMonoSep(double sigma);
 
     void getPyramide(int octaveCount, int levelCount, double sigmaA, double sigma0); //построить пирамиду
     double getL(QList<Octave*> pyramide, int y, int x, double sigma, int colorNum); //функция L(x, y, sigma)
 
-    void setMoravek (int winSize, int pointCount);    //применить оператор Моравека
-    void setHarris (int winSize, int pointCount, double k = 0.06);    //применить оператор Харриса
+    void setMoravek (int winSize, int pointCount, bool isCount = true);    //применить оператор Моравека
+    void setHarris (int winSize, int pointCount, bool isCount = true, double k = 0.06);    //применить оператор Харриса
 
     void setLIMIT(int value);
 
@@ -97,6 +99,8 @@ private:
     DoubleImageRGB *imageRGB;
 
     double getC(int winSize, int x, int y, int dx, int dy);
+    QList<InterestingPoint> getLocalMaximums (DoubleImageMono pointsImage, int winSize);    //получить локальные максимумы
+    QList<InterestingPoint> filterPoints (QList<InterestingPoint> pointsIn, int count);
 
 
 };

@@ -323,6 +323,35 @@ void Graphic::gaussianFilterRGBSep(double sigma)
     imageRGB->convolutionUniversal(core, true); //непосредственно вычисляем
 }
 
+void Graphic::gaussianFilterMonoSep(double sigma)
+{
+    QList<QList<double> > core; //ядро свертки
+
+    double s = sigma * sigma * 2;
+
+    int halfSize = static_cast<int>(sigma) * 3;
+    if (halfSize  % 2 == 0)
+        ++halfSize;
+
+    QList<double> str;
+    for (int i = -halfSize; i <= halfSize; i++){
+        str.append(exp(- i * i / s) / (M_PI * s));
+    }
+    core.append(str);
+
+    imageMono->convolutionUniversal(core, true); //непосредственно вычисляем
+
+
+    core.clear();
+    for (int i = -halfSize; i <= halfSize; i++){
+        QList<double> str;
+        str.append(exp(- i * i / s) / (M_PI * s));
+        core.append(str);
+    }
+
+    imageMono->convolutionUniversal(core, true); //непосредственно вычисляем
+}
+
 void Graphic::getPyramide(int octaveCount, int levelCount, double sigmaA, double sigma0)
 {
     double k = pow(2.0, 1.0 / (levelCount - 1)); //интервал между масштабами
@@ -409,11 +438,14 @@ double Graphic::getL(QList<Octave *> pyramide, int y, int x, double sigma, int c
 }
 
 
-void Graphic::setMoravek(int winSize, int pointCount)
+void Graphic::setMoravek(int winSize, int pointCount, bool isCount)
 {
     int w = imageMono->getWidth();
     int h = imageMono->getHeight();
-    QList <InterestingPoint> interestingPoints;
+
+    DoubleImageMono imageS (new QImage(w, h, QImage::Format_RGB32));    //здесь будем хранить значения оператора
+
+    gaussianFilterMonoSep(1.5);
 
     //вычисляем во всех точках
     for (int j = 0; j < h; j++) {
@@ -427,28 +459,55 @@ void Graphic::setMoravek(int winSize, int pointCount)
                     }
                 }
             }
-            interestingPoints.append(InterestingPoint(i, j, sLocal));
+            imageS.setPixel(i, j, sLocal);
+            //interestingPoints.append(InterestingPoint(i, j, sLocal));
         }
     }
 
-    std::sort(interestingPoints.begin(), interestingPoints.end(), InterestingPoint::operatorMore);  //сортируем в порядке убывания
+    QList <InterestingPoint> interestingPoints = getLocalMaximums(imageS, 3);
 
-    while (interestingPoints.length() > pointCount)
-        interestingPoints.removeLast(); //оставляем самые-самые точки
+    interestingPoints = filterPoints(interestingPoints, pointCount);
+//    std::sort(interestingPoints.begin(), interestingPoints.end(), InterestingPoint::operatorMore);  //сортируем в порядке убывания
+
+//    while (interestingPoints.length() > pointCount)
+//        interestingPoints.removeLast(); //оставляем самые-самые точки
+
+
+//    if (isCount){
+        //по количеству
+
+
+//    }
+//    else{
+//        //по порогу
+//        double threshold = static_cast<double>(pointCount) / 500;
+
+//        for (int idx = 0; idx < interestingPoints.size(); ) {
+//          if (interestingPoints[idx].getC() < threshold) {
+//            interestingPoints.removeAt(idx);
+//          }
+//          else ++idx;
+//        }
+//    }
 
     foreach (InterestingPoint point, interestingPoints) {
-        imageRGB->setPixel(point.getX(), point.getY(), 1, 0, 0);  //красим точки
+        imageRGB->setPixel(point.getX() - 1, point.getY(), 1, 1, 1);  //красим точки
+        imageRGB->setPixel(point.getX() + 1, point.getY(), 1, 1, 1);  //красим точки
+        imageRGB->setPixel(point.getX(), point.getY(), 1, 1, 1);  //красим точки
+        imageRGB->setPixel(point.getX(), point.getY() - 1, 1, 1, 1);  //красим точки
+        imageRGB->setPixel(point.getX(), point.getY() + 1, 1, 1, 1);  //красим точки
     }
 }
 
-void Graphic::setHarris(int winSize, int pointCount, double k)
+void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
 {
+    gaussianFilterMonoSep(1.5);
     //находим производные
     DoubleImageMono dx = DoubleImageMono(*imageMono);
     DoubleImageMono dy = DoubleImageMono(*imageMono);
     dx.setDerivateX();
     dy.setDerivateY();
-    QList <InterestingPoint> interestingPoints;
+
 
     int w = imageMono->getWidth();
     int h = imageMono->getHeight();
@@ -458,7 +517,7 @@ void Graphic::setHarris(int winSize, int pointCount, double k)
     int halfSize = winSize / 2;
 
 
-
+    //Вычисляем A, B, C для всех точек
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             double sumA = 0, sumB = 0, sumC = 0;
@@ -477,22 +536,44 @@ void Graphic::setHarris(int winSize, int pointCount, double k)
         }
     }
 
-    //CMyImage result(_image.getHeight(), _image.getWidth());
+    DoubleImageMono imageS (new QImage(w, h, QImage::Format_RGB32));    //здесь будем хранить значения оператора
 
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             double cHarris = a[j * w + i] * c[j * w + i] - b[j * w + i] * b[j * w + i] - k * (a[j * w + i] + c[j * w + i]) * (a[j * w + i] + c[j * w + i]);
-            interestingPoints.append(InterestingPoint(i, j, cHarris));
+            imageS.setPixel(i, j, cHarris);
         }
     }
+    QList <InterestingPoint> interestingPoints = getLocalMaximums(imageS, 3);
+    interestingPoints = filterPoints(interestingPoints, pointCount);
+//    std::sort(interestingPoints.begin(), interestingPoints.end(), InterestingPoint::operatorLess);  //сортируем в порядке возрастания
 
-    std::sort(interestingPoints.begin(), interestingPoints.end(), InterestingPoint::operatorLess);  //сортируем в порядке возрастания
+//    while (interestingPoints.length() > pointCount)
+//        interestingPoints.removeLast(); //оставляем самые-самые точки
 
-    while (interestingPoints.length() > pointCount)
-        interestingPoints.removeLast(); //оставляем самые-самые точки
+
+//    if (isCount){
+        //по количеству
+
+//    }
+//    else{
+//        //по порогу
+//        double threshold = static_cast<double>(pointCount) / 1000;
+
+//        for (int idx = 0; idx < interestingPoints.size(); ) {
+//          if (interestingPoints[idx].getC() < threshold) {
+//            interestingPoints.removeAt(idx);
+//          }
+//          else ++idx;
+//        }
+//    }
 
     foreach (InterestingPoint point, interestingPoints) {
-        imageRGB->setPixel(point.getX(), point.getY(), 1, 0, 0);  //красим точки
+        imageRGB->setPixel(point.getX() - 1, point.getY(), 1, 1, 1);  //красим точки
+        imageRGB->setPixel(point.getX() + 1, point.getY(), 1, 1, 1);  //красим точки
+        imageRGB->setPixel(point.getX(), point.getY(), 1, 1, 1);  //красим точки
+        imageRGB->setPixel(point.getX(), point.getY() - 1, 1, 1, 1);  //красим точки
+        imageRGB->setPixel(point.getX(), point.getY() + 1, 1, 1, 1);  //красим точки
     }
     delete[] a;
     delete[] b;
@@ -519,3 +600,80 @@ double Graphic::getC(int winSize, int x, int y, int dx, int dy)
     return sum;
 }
 
+QList<InterestingPoint> Graphic::getLocalMaximums(DoubleImageMono pointsImage, int winSize)
+{
+    QList <InterestingPoint> points;
+
+    int w = imageMono->getWidth();
+    int h = imageMono->getHeight();
+    int halfSize = winSize / 2;
+
+    double min = std::numeric_limits <double>::max(), max = std::numeric_limits <double>::min();
+    for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
+            if (max < pointsImage.getPixel(i, j))
+                max = pointsImage.getPixel(i, j);
+            if (min > pointsImage.getPixel(i, j))
+                min = pointsImage.getPixel(i, j);
+        }
+    }
+    double threshold = min + (max - min) * 0.2;
+
+
+    for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
+            bool is_correct = true;
+            double sLocal = pointsImage.getPixel(i, j);
+            for (int px = -halfSize; px <= halfSize && is_correct; px++) {
+                for (int py = -halfSize; py <= halfSize && is_correct; py++) {
+                    if (px != 0 || py != 0) {
+                        is_correct = sLocal > pointsImage.getPixel(i + px, j + py);
+                    }
+                }
+            }
+            if (is_correct && sLocal > threshold) {
+                points.append(InterestingPoint(i, j, sLocal));;
+            }
+        }
+    }
+
+    return points;
+}
+
+QList<InterestingPoint> Graphic::filterPoints(QList<InterestingPoint> pointsIn, int count)
+{
+    QList<InterestingPoint> points (pointsIn);
+
+    int r = 1;
+
+    while (points.size() > count && r < imageMono->getWidth() / 2 && r < imageMono->getHeight() / 2) {
+        points.erase(std::remove_if(points.begin(), points.end(),
+            [&](const InterestingPoint& _point) {
+                for (const auto& point : points) {
+                    double dst = InterestingPoint::getDistance(point, _point);
+                    if (dst < r && _point.getC() < point.getC()) {
+                        return true;
+                    }
+                }
+                return false;
+            }), points.end());
+        r++;
+    }
+
+    return points;
+}
+
+//while (filter_points.size() > _target_quantity) {
+//    filter_points.erase(std::remove_if(filter_points.begin(), filter_points.end(),
+//        [&](const auto& _point) {
+//            for (const auto& point : filter_points) {
+//                auto dst = smpl::getDistance(std::get<toUType(Poi::X)>(_point), std::get<toUType(Poi::Y)>(_point),
+//                                             std::get<toUType(Poi::X)>(point), std::get<toUType(Poi::Y)>(point));
+//                if (dst < r && std::get<toUType(Poi::OperatorValue)>(_point) < std::get<toUType(Poi::OperatorValue)>(point)) {
+//                    return true;
+//                }
+//            }
+//            return false;
+//        }), filter_points.end());
+//    r++;
+//}

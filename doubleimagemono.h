@@ -32,7 +32,9 @@ public:
     void setGradient(); //получить величину градиента
 
     double *getImageDouble() const;
+
     double getPixel(int x, int y) const;    //получит значение писеля в заданной точке
+    void setPixel (int x, int y, double c);
 };
 
 #endif // DOUBLEIMAGEMONO_H
