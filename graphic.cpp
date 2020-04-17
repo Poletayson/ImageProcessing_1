@@ -427,7 +427,7 @@ double Graphic::getL(QList<Octave *> pyramide, int y, int x, double sigma, int c
     return ((DoubleImageRGB*)target_layer->getImage())->getColorMatrix(colorNum)[y * w + x];
 }
 
-
+//применить оператор Моравека
 void Graphic::setMoravek(int winSize, int pointCount, bool isCount)
 {
     int w = imageMono->getWidth();
@@ -489,6 +489,7 @@ void Graphic::setMoravek(int winSize, int pointCount, bool isCount)
     }
 }
 
+//применить оператор Харриса
 void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
 {
     gaussianFilterMonoSep(1.5); //немного сглаживаем
@@ -597,7 +598,7 @@ double Graphic::getC(int winSize, int x, int y, int dx, int dy)
 
     for (int u = -winSizeHalf; u <= winSizeHalf; u++) {
         for (int v = -winSizeHalf; v <= winSizeHalf; v++) {
-            double tmp =  ((DoubleImageMono*)imageMono)->getPixel(x + u, y + v) - ((DoubleImageMono*)imageMono)->getPixel(x + u + dx, y + v + dy);
+            double tmp =  imageMono->getPixel(x + u, y + v) - imageMono->getPixel(x + u + dx, y + v + dy);
             sum += tmp * tmp;
         }
     }
@@ -664,7 +665,7 @@ QList<InterestingPoint> Graphic::filterPoints(QList<InterestingPoint> pointsIn, 
             [&](const InterestingPoint& curPoint) {   //лямбда-функция, захватываем все локальные переменные по ссылке
                 for (const InterestingPoint& point : points) {
                     double dst = InterestingPoint::getDistance(point, curPoint);  //расстояние
-                    //если точки достаточно близко и вторая точка "лучше"
+                    //если точки достаточно близко и вторая точка сильнее
                     if (dst < r && curPoint.getC() < point.getC()) {
                         return true;
                     }
