@@ -98,9 +98,9 @@ private:
     DoubleImageMono *imageMono;
     DoubleImageRGB *imageRGB;
 
-    double getC(int winSize, int x, int y, int dx, int dy);
-    QList<InterestingPoint> getLocalMaximums (DoubleImageMono pointsImage, int winSize);    //получить локальные максимумы
-    QList<InterestingPoint> filterPoints (QList<InterestingPoint> pointsIn, int count);
+    double getC(int winSize, int x, int y, int dx, int dy); //получить ошибку при сдвиге окна
+    QList<InterestingPoint> getLocalMaximums (DoubleImageMono pointsImage, int winSize, bool isHarris = false);    //получить локальные максимумы
+    QList<InterestingPoint> filterPoints (QList<InterestingPoint> pointsIn, int count); //отфильтровать точки до заданного количества (ANMS)
 
 
 };

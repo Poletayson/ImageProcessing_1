@@ -223,22 +223,12 @@ void Graphic::setImageFromRGB()
 
 void Graphic::setDerivateX()
 {
-    QList<QList<double> > core; //ядро свертки
-    core.append(QList<double>({1, 0, -1}));
-    core.append(QList<double>({2, 0, -2}));
-    core.append(QList<double>({1, 0, -1}));
-
-    imageMono->convolutionUniversal(core); //непосредственно вычисляем
+    imageMono->setDerivateX();// convolutionUniversal(core); //непосредственно вычисляем
 }
 
 void Graphic::setDerivateY()
 {
-    QList<QList<double> > core; //ядро свертки
-    core.append(QList<double>({1, 2, 1}));
-    core.append(QList<double>({0, 0, 0}));
-    core.append(QList<double>({-1, -2, -1}));
-
-    imageMono->convolutionUniversal(core); //непосредственно вычисляем
+    imageMono->setDerivateY();
 }
 
 /*
@@ -501,7 +491,7 @@ void Graphic::setMoravek(int winSize, int pointCount, bool isCount)
 
 void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
 {
-    gaussianFilterMonoSep(1.5);
+    gaussianFilterMonoSep(1.5); //немного сглаживаем
     //находим производные
     DoubleImageMono dx = DoubleImageMono(*imageMono);
     DoubleImageMono dy = DoubleImageMono(*imageMono);
@@ -541,10 +531,24 @@ void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             double cHarris = a[j * w + i] * c[j * w + i] - b[j * w + i] * b[j * w + i] - k * (a[j * w + i] + c[j * w + i]) * (a[j * w + i] + c[j * w + i]);
-            imageS.setPixel(i, j, cHarris);
+            imageS.setPixel(i, j, abs(cHarris));
+            //qDebug() << abs(cHarris);
         }
     }
-    QList <InterestingPoint> interestingPoints = getLocalMaximums(imageS, 3);
+    QList <InterestingPoint> interestingPoints = getLocalMaximums(imageS, 3, true);
+
+
+    double min = std::numeric_limits <double>::max(), max = std::numeric_limits <double>::min();
+    for (int j = 0; j < h; j++) {
+        for (int i = 0; i < w; i++) {
+            if (max < imageS.getPixel(i, j))
+                max = imageS.getPixel(i, j);
+            if (min > imageS.getPixel(i, j))
+                min = imageS.getPixel(i, j);
+        }
+    }
+//    qDebug() << min << " " << max;
+
     interestingPoints = filterPoints(interestingPoints, pointCount);
 //    std::sort(interestingPoints.begin(), interestingPoints.end(), InterestingPoint::operatorLess);  //сортируем в порядке возрастания
 
@@ -585,6 +589,7 @@ void Graphic::setLIMIT(int value)
     LIMIT = value;
 }
 
+//получить ошибку при сдвиге окна
 double Graphic::getC(int winSize, int x, int y, int dx, int dy)
 {
     double sum = 0;
@@ -600,14 +605,16 @@ double Graphic::getC(int winSize, int x, int y, int dx, int dy)
     return sum;
 }
 
-QList<InterestingPoint> Graphic::getLocalMaximums(DoubleImageMono pointsImage, int winSize)
+//получить локальные максимумы
+QList<InterestingPoint> Graphic::getLocalMaximums(DoubleImageMono pointsImage, int winSize, bool isHarris)
 {
     QList <InterestingPoint> points;
 
     int w = imageMono->getWidth();
     int h = imageMono->getHeight();
-    int halfSize = winSize / 2;
+    int halfSize = winSize / 2; //полуразмер окна
 
+    //находим мин и макс для порога
     double min = std::numeric_limits <double>::max(), max = std::numeric_limits <double>::min();
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
@@ -617,9 +624,13 @@ QList<InterestingPoint> Graphic::getLocalMaximums(DoubleImageMono pointsImage, i
                 min = pointsImage.getPixel(i, j);
         }
     }
-    double threshold = min + (max - min) * 0.2;
+    //задаем порог
+    double threshold = min + (max - min) * 0.01;
+    if (isHarris)
+        threshold = min + (max - min) * 0.0001;
 
 
+    //добавляем точки в список, только если они сильнейшие в своей окрестности
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             bool is_correct = true;
@@ -640,18 +651,21 @@ QList<InterestingPoint> Graphic::getLocalMaximums(DoubleImageMono pointsImage, i
     return points;
 }
 
+//отфильтровать точки до заданного количества (ANMS)
 QList<InterestingPoint> Graphic::filterPoints(QList<InterestingPoint> pointsIn, int count)
 {
     QList<InterestingPoint> points (pointsIn);
 
     int r = 1;
 
+    //пока точек слишком много и радиус в пределах допустимого
     while (points.size() > count && r < imageMono->getWidth() / 2 && r < imageMono->getHeight() / 2) {
         points.erase(std::remove_if(points.begin(), points.end(),
-            [&](const InterestingPoint& _point) {
-                for (const auto& point : points) {
-                    double dst = InterestingPoint::getDistance(point, _point);
-                    if (dst < r && _point.getC() < point.getC()) {
+            [&](const InterestingPoint& curPoint) {   //лямбда-функция, захватываем все локальные переменные по ссылке
+                for (const InterestingPoint& point : points) {
+                    double dst = InterestingPoint::getDistance(point, curPoint);  //расстояние
+                    //если точки достаточно близко и вторая точка "лучше"
+                    if (dst < r && curPoint.getC() < point.getC()) {
                         return true;
                     }
                 }
@@ -663,17 +677,3 @@ QList<InterestingPoint> Graphic::filterPoints(QList<InterestingPoint> pointsIn, 
     return points;
 }
 
-//while (filter_points.size() > _target_quantity) {
-//    filter_points.erase(std::remove_if(filter_points.begin(), filter_points.end(),
-//        [&](const auto& _point) {
-//            for (const auto& point : filter_points) {
-//                auto dst = smpl::getDistance(std::get<toUType(Poi::X)>(_point), std::get<toUType(Poi::Y)>(_point),
-//                                             std::get<toUType(Poi::X)>(point), std::get<toUType(Poi::Y)>(point));
-//                if (dst < r && std::get<toUType(Poi::OperatorValue)>(_point) < std::get<toUType(Poi::OperatorValue)>(point)) {
-//                    return true;
-//                }
-//            }
-//            return false;
-//        }), filter_points.end());
-//    r++;
-//}
