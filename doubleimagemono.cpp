@@ -19,6 +19,13 @@ void DoubleImageMono::setPixel(int x, int y, double c)
         (this->imageDouble)[y * width + x] = c;
 }
 
+void DoubleImageMono::save(QString name)
+{
+    normalization255(imageDouble);
+    QString path = QApplication::applicationDirPath() + "/Input/" + name;      //текущая директория
+    getImage()->save(path);
+}
+
 void DoubleImageMono::normalization255(double *img)
 {
     double min = 0, max = 1;

@@ -435,7 +435,7 @@ void Graphic::setMoravek(int winSize, int pointCount, bool isCount)
 
     DoubleImageMono imageS (new QImage(w, h, QImage::Format_RGB32));    //здесь будем хранить значения оператора
 
-    gaussianFilterMonoSep(1.5);
+    gaussianFilterMonoSep(1.3);
 
     //вычисляем во всех точках
     for (int j = 0; j < h; j++) {
@@ -454,31 +454,15 @@ void Graphic::setMoravek(int winSize, int pointCount, bool isCount)
         }
     }
 
+//    imageS.save("MoavekOtklik.jpg");
     QList <InterestingPoint> interestingPoints = getLocalMaximums(imageS, 3);
 
     interestingPoints = filterPoints(interestingPoints, pointCount);
-//    std::sort(interestingPoints.begin(), interestingPoints.end(), InterestingPoint::operatorMore);  //сортируем в порядке убывания
 
+//    std::sort(interestingPoints.begin(), interestingPoints.end(), InterestingPoint::operatorMore);  //сортируем в порядке убывания
 //    while (interestingPoints.length() > pointCount)
 //        interestingPoints.removeLast(); //оставляем самые-самые точки
 
-
-//    if (isCount){
-        //по количеству
-
-
-//    }
-//    else{
-//        //по порогу
-//        double threshold = static_cast<double>(pointCount) / 500;
-
-//        for (int idx = 0; idx < interestingPoints.size(); ) {
-//          if (interestingPoints[idx].getC() < threshold) {
-//            interestingPoints.removeAt(idx);
-//          }
-//          else ++idx;
-//        }
-//    }
 
     foreach (InterestingPoint point, interestingPoints) {
         imageRGB->setPixel(point.getX() - 1, point.getY(), 1, 1, 1);  //красим точки
@@ -492,7 +476,7 @@ void Graphic::setMoravek(int winSize, int pointCount, bool isCount)
 //применить оператор Харриса
 void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
 {
-    gaussianFilterMonoSep(1.5); //немного сглаживаем
+    gaussianFilterMonoSep(1.3); //немного сглаживаем
     //находим производные
     DoubleImageMono dx = DoubleImageMono(*imageMono);
     DoubleImageMono dy = DoubleImageMono(*imageMono);
@@ -508,6 +492,19 @@ void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
     int halfSize = winSize / 2;
 
 
+    //находим веса для окна - ядро Гаусса
+    double sigma = static_cast<double>(halfSize) / 3;
+    double *gaussKernel = new double[winSize * winSize];
+
+    double coeff = 1 / (2 * M_PI * sigma * sigma);
+    double delitel = 2 * sigma * sigma;
+
+    for (int u = -halfSize; u <= halfSize; u++)
+        for (int v = -halfSize; v <= halfSize; v++){
+            gaussKernel[(u + halfSize) * halfSize + (v  + halfSize)] = coeff * exp(- (u * u + v * v) / delitel);
+        }
+
+
     //Вычисляем A, B, C для всех точек
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
@@ -516,9 +513,9 @@ void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
                 for (int v = -halfSize; v <= halfSize; v++) {
                     double i_x = dx.getPixel(i + u, j + v);
                     double i_y = dy.getPixel(i + u, j + v);
-                    sumA += i_x * i_x;
-                    sumB += i_x * i_y;
-                    sumC += i_y * i_y;
+                    sumA += i_x * i_x * gaussKernel[u * halfSize + v];
+                    sumB += i_x * i_y * gaussKernel[u * halfSize + v];
+                    sumC += i_y * i_y * gaussKernel[u * halfSize + v];
                 }
             }
             a[j * w + i] = sumA;
@@ -527,15 +524,18 @@ void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
         }
     }
 
+
     DoubleImageMono imageS (new QImage(w, h, QImage::Format_RGB32));    //здесь будем хранить значения оператора
 
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
             double cHarris = a[j * w + i] * c[j * w + i] - b[j * w + i] * b[j * w + i] - k * (a[j * w + i] + c[j * w + i]) * (a[j * w + i] + c[j * w + i]);
             imageS.setPixel(i, j, abs(cHarris));
-            //qDebug() << abs(cHarris);
+//            qDebug() << cHarris;
         }
     }
+
+
     QList <InterestingPoint> interestingPoints = getLocalMaximums(imageS, 3, true);
 
 
@@ -548,30 +548,17 @@ void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
                 min = imageS.getPixel(i, j);
         }
     }
-//    qDebug() << min << " " << max;
+    qDebug() << min << " " << max;
+
+
+//imageS.save("HarrisOtklik.jpg");
 
     interestingPoints = filterPoints(interestingPoints, pointCount);
-//    std::sort(interestingPoints.begin(), interestingPoints.end(), InterestingPoint::operatorLess);  //сортируем в порядке возрастания
 
+//    std::sort(interestingPoints.begin(), interestingPoints.end(), InterestingPoint::operatorMore);  //сортируем в порядке возрастания
 //    while (interestingPoints.length() > pointCount)
 //        interestingPoints.removeLast(); //оставляем самые-самые точки
 
-
-//    if (isCount){
-        //по количеству
-
-//    }
-//    else{
-//        //по порогу
-//        double threshold = static_cast<double>(pointCount) / 1000;
-
-//        for (int idx = 0; idx < interestingPoints.size(); ) {
-//          if (interestingPoints[idx].getC() < threshold) {
-//            interestingPoints.removeAt(idx);
-//          }
-//          else ++idx;
-//        }
-//    }
 
     foreach (InterestingPoint point, interestingPoints) {
         imageRGB->setPixel(point.getX() - 1, point.getY(), 1, 1, 1);  //красим точки
@@ -583,6 +570,7 @@ void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
     delete[] a;
     delete[] b;
     delete[] c;
+    delete[] gaussKernel;
 }
 
 void Graphic::setLIMIT(int value)
@@ -626,9 +614,9 @@ QList<InterestingPoint> Graphic::getLocalMaximums(DoubleImageMono pointsImage, i
         }
     }
     //задаем порог
-    double threshold = min + (max - min) * 0.01;
+    double threshold = min + (max - min) * 0.005;
     if (isHarris)
-        threshold = min + (max - min) * 0.0001;
+        threshold = min + (max - min) * 0.00015;
 
 
     //добавляем точки в список, только если они сильнейшие в своей окрестности

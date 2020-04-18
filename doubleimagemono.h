@@ -3,6 +3,7 @@
 
 #include "idoubleimage.h"
 
+#include <QApplication>
 #include <QImage>
 #include <QtMath>
 
@@ -35,6 +36,8 @@ public:
 
     double getPixel(int x, int y) const;    //получит значение писеля в заданной точке
     void setPixel (int x, int y, double c);
+
+    void save (QString name);
 };
 
 #endif // DOUBLEIMAGEMONO_H

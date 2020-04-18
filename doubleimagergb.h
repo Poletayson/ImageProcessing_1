@@ -3,7 +3,9 @@
 
 #include "idoubleimage.h"
 
+#include <QApplication>
 #include <QImage>
+
 
 
 
