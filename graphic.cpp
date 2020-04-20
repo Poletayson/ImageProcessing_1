@@ -478,8 +478,8 @@ void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
 {
     gaussianFilterMonoSep(1.3); //немного сглаживаем
     //находим производные
-    DoubleImageMono dx = DoubleImageMono(*imageMono);
-    DoubleImageMono dy = DoubleImageMono(*imageMono);
+    DoubleImageMono dx = DoubleImageMono(imageMono->getImage());
+    DoubleImageMono dy = DoubleImageMono(imageMono->getImage());
     dx.setDerivateX();
     dy.setDerivateY();
 
@@ -493,7 +493,7 @@ void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
 
 
     //находим веса для окна - ядро Гаусса
-    double sigma = static_cast<double>(halfSize) / 3;
+    double sigma = static_cast<double>(winSize) / 6;
     double *gaussKernel = new double[winSize * winSize];
 
     double coeff = 1 / (2 * M_PI * sigma * sigma);
@@ -502,8 +502,9 @@ void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
     for (int u = -halfSize; u <= halfSize; u++)
         for (int v = -halfSize; v <= halfSize; v++){
             gaussKernel[(u + halfSize) * halfSize + (v  + halfSize)] = coeff * exp(- (u * u + v * v) / delitel);
+//            qDebug() << gaussKernel[(u + halfSize) * halfSize + (v  + halfSize)];
         }
-
+//qDebug() << "\n\n";
 
     //Вычисляем A, B, C для всех точек
     for (int j = 0; j < h; j++) {
@@ -521,37 +522,42 @@ void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
             a[j * w + i] = sumA;
             b[j * w + i] = sumB;
             c[j * w + i] = sumC;
+//            qDebug() << sumA << " " << sumB << " " << sumC;
         }
     }
 
 
     DoubleImageMono imageS (new QImage(w, h, QImage::Format_RGB32));    //здесь будем хранить значения оператора
 
-    for (int j = 0; j < h; j++) {
-        for (int i = 0; i < w; i++) {
-            double cHarris = a[j * w + i] * c[j * w + i] - b[j * w + i] * b[j * w + i] - k * (a[j * w + i] + c[j * w + i]) * (a[j * w + i] + c[j * w + i]);
-            imageS.setPixel(i, j, abs(cHarris));
+//    for (int j = 0; j < h; j++) {
+//        for (int i = 0; i < w; i++) {
+//            double det = a[j * w + i] * c[j * w + i] - b[j * w + i] * b[j * w + i];
+//            double trace = a[j * w + i] + c[j * w + i];
+//            double cHarris = det / trace;
+//            imageS.setPixel(i, j, abs(cHarris));
 //            qDebug() << cHarris;
-        }
-    }
+//        }
+//    }
 
-
-    QList <InterestingPoint> interestingPoints = getLocalMaximums(imageS, 3, true);
-
-
-    double min = std::numeric_limits <double>::max(), max = std::numeric_limits <double>::min();
+    //вариант с собств. числами
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
-            if (max < imageS.getPixel(i, j))
-                max = imageS.getPixel(i, j);
-            if (min > imageS.getPixel(i, j))
-                min = imageS.getPixel(i, j);
+            double sc = a[j * w + i] + c[j * w + i];
+            double d = a[j * w + i] * c[j * w + i] - b[j * w + i] * b[j * w + i];
+            double det = sc * sc - 4 * d;
+            double L1 = (sc + sqrt(det)) / 2;
+            double L2 = (sc - sqrt(det)) / 2;
+            double cHarris = std::min (L1, L2);
+            imageS.setPixel(i, j, cHarris);
+            //qDebug() << L1 << " " << L2;
         }
     }
-    qDebug() << min << " " << max;
 
 
-//imageS.save("HarrisOtklik.jpg");
+    QList <InterestingPoint> interestingPoints = getLocalMaximums(imageS, 5, true);
+
+
+//    imageS.save("HarrisOtklik.jpg");
 
     interestingPoints = filterPoints(interestingPoints, pointCount);
 
@@ -613,10 +619,12 @@ QList<InterestingPoint> Graphic::getLocalMaximums(DoubleImageMono pointsImage, i
                 min = pointsImage.getPixel(i, j);
         }
     }
+
     //задаем порог
     double threshold = min + (max - min) * 0.005;
     if (isHarris)
-        threshold = min + (max - min) * 0.00015;
+        threshold = min + (max - min) * 0.004;
+    qDebug() << min << " " << max << " " << threshold;
 
 
     //добавляем точки в список, только если они сильнейшие в своей окрестности

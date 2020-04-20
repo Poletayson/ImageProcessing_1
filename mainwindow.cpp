@@ -218,7 +218,7 @@ void MainWindow::setHarris()
 
     myGraphic2->setImage(myGraphic->getImage());
 
-    myGraphic2->setHarris(5, ui->horizontalSliderPointsCount->value()); //оператор Харриса
+    myGraphic2->setHarris(3, ui->horizontalSliderPointsCount->value()); //оператор Харриса
 
     myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
     image = myGraphic2->getImage();
