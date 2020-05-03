@@ -9,6 +9,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    path = QApplication::applicationDirPath();  //QDir::currentPath();      //текущая директория
+    if (!QDir(path + "/Input").exists())
+        QDir(path).mkdir("Input");
+    path = path + "/Input";
+
     myGraphic = new Graphic ();
     myGraphic2 = new Graphic ();
 
@@ -25,8 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
    connect(ui->buttonGradient, SIGNAL(clicked()), this, SLOT(setGradient ()));
    connect(ui->ButtonGauss, SIGNAL(clicked()), this, SLOT(setGauss ()));
    connect(ui->buttonPyramides, SIGNAL(clicked()), this, SLOT(getPyramide()));
-   connect(ui->buttonMoravek, SIGNAL(clicked()), this, SLOT(setMoravek()));
-   connect(ui->buttonHarris, SIGNAL(clicked()), this, SLOT(setHarris()));
+   connect(ui->buttonMoravek, SIGNAL(clicked()), this, SLOT(getMoravec()));
+   connect(ui->buttonHarris, SIGNAL(clicked()), this, SLOT(getHarris()));
+   connect(ui->buttonDescriptors, SIGNAL(clicked()), this, SLOT(getDescriptors()));
 
    myGraphic2->setLIMIT(ui->horizontalSlider->value());
 
@@ -56,12 +62,6 @@ void MainWindow::setInterfaceDisabled(bool f)
 
 void MainWindow::getFile()             //выбираем файл
 {
-    #include <QDir>
-    QString path = QApplication::applicationDirPath();  //QDir::currentPath();      //текущая директория
-    if (QDir(path + "/Input").exists())
-         path = path + "/Input";
-    else
-        QDir(path).mkdir("Input");
     QString fileName = QFileDialog::getOpenFileName(Q_NULLPTR, "Выберите входной файл", path);
     //получили файл
     if (! fileName.isEmpty()){
@@ -190,7 +190,7 @@ void MainWindow::getPyramide()
     setInterfaceDisabled(false);
 }
 
-void MainWindow::setMoravek()
+void MainWindow::getMoravec()
 {
     setInterfaceDisabled(true);
 
@@ -199,7 +199,16 @@ void MainWindow::setMoravek()
 
     myGraphic2->setImage(myGraphic->getImage());
 
-    myGraphic2->setMoravek(5, ui->horizontalSliderPointsCount->value()); //оператор Моравека
+    QList<InterestingPoint> interestingPoints = myGraphic2->setMoravek(5, ui->horizontalSliderPointsCount->value()); //оператор Моравека
+
+    for(int i = 0; i < interestingPoints.size(); i++){
+
+            myGraphic2->getImageRGB()->setPixel(interestingPoints.at(i).getX() - 1, interestingPoints.at(i).getY(), 1, 1, 1);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(interestingPoints.at(i).getX() + 1, interestingPoints.at(i).getY(), 1, 1, 1);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(interestingPoints.at(i).getX(), interestingPoints.at(i).getY(), 1, 1, 1);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(interestingPoints.at(i).getX(), interestingPoints.at(i).getY() - 1, 1, 1, 1);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(interestingPoints.at(i).getX(), interestingPoints.at(i).getY() + 1, 1, 1, 1);  //красим точки
+    }
 
     myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
     image = myGraphic2->getImage();
@@ -209,7 +218,7 @@ void MainWindow::setMoravek()
     setInterfaceDisabled(false);
 }
 
-void MainWindow::setHarris()
+void MainWindow::getHarris()
 {
     setInterfaceDisabled(true);
 
@@ -218,7 +227,123 @@ void MainWindow::setHarris()
 
     myGraphic2->setImage(myGraphic->getImage());
 
-    myGraphic2->setHarris(3, ui->horizontalSliderPointsCount->value()); //оператор Харриса
+    QList<InterestingPoint> interestingPoints = myGraphic2->setHarris(3, ui->horizontalSliderPointsCount->value()); //оператор Харриса
+
+        foreach (InterestingPoint point, interestingPoints) {
+            myGraphic2->getImageRGB()->setPixel(point.getX() - 1, point.getY(), 1, 1, 1);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(point.getX() + 1, point.getY(), 1, 1, 1);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(point.getX(), point.getY(), 1, 1, 1);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(point.getX(), point.getY() - 1, 1, 1, 1);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(point.getX(), point.getY() + 1, 1, 1, 1);  //красим точки
+        }
+
+    myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
+    image = myGraphic2->getImage();
+
+    myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
+
+    setInterfaceDisabled(false);
+}
+
+void MainWindow::getDescriptors()
+{
+    setInterfaceDisabled(true);
+
+    delete image;
+    delete myGraphic2->imageItem;
+
+    myGraphic2->setImage(myGraphic->getImage());
+    QList<InterestingPoint> points1 = myGraphic2->getDescriptors(ui->horizontalSliderPointsCount->value()); //получить дескрипторы
+//    foreach (InterestingPoint p, points1) {
+//        qDebug()<<p.getDescroptor().toString();
+//    }
+    qDebug()<<"Desc1 getted";
+
+    Graphic *gaphicTransformed = new Graphic ();
+    gaphicTransformed->setImage(new QImage (path + "/Lena2.jpg"));
+//    qDebug()<<"Size " << gaphicTransformed->getImage()->width() << " " << gaphicTransformed->getImage()->height();
+    qDebug()<<path + "/transformed.jpg";
+    QList<InterestingPoint> points2 = gaphicTransformed->getDescriptors(ui->horizontalSliderPointsCount->value()); //получить дескрипторы
+//    foreach (InterestingPoint p, points2) {
+//        qDebug()<<p.getDescroptor().toString();
+//    }
+    qDebug()<<"Desc2 getted";
+    //получили дескрипторы для двух картинок
+
+    double *distances = new double[points1.size() * points2.size()];
+
+    double minValue = std::numeric_limits<double>::max();
+    double maxValue = std::numeric_limits<double>::min();
+    double middleValue = 0;
+
+    //Мин Макс и среднее
+    for(int i = 0; i < points1.size(); i++){
+        for(int j = 0; j < points2.size(); j++){
+            double dist = Utils::getDescriptorDistance(points1.at(i).getDescroptor(), points2.at(j).getDescroptor());
+            distances[i * points2.size() + j] = dist;
+            middleValue += dist;
+            if(dist < minValue){
+                minValue = dist;
+            }
+            if(dist > maxValue){
+                maxValue = dist;
+            }
+        }
+    }
+    middleValue /= points1.size() * points2.size();
+    qDebug()<<"MinDist: " << minValue <<" MaxDist: " << maxValue << "middle: " << middleValue;
+
+
+    //Поиск соответствий
+    for(int i = 0; i < points1.size(); i++){
+        double firstMinValue = std::numeric_limits<double>::max();
+        int firstMinIndex = 0;
+        double secondMinValue = std::numeric_limits<double>::max();
+        int secondMinIndex = 0;
+
+        for(int j = 0; j < points2.size(); j++){
+            double dist = distances[i * points2.size() + j];//Utils::getDescriptorDistance(points1.at(i).getDescroptor(), points2.at(j).getDescroptor());
+            if(dist < firstMinValue){
+                secondMinValue = firstMinValue;
+                secondMinIndex = firstMinIndex;
+
+                firstMinValue = dist;
+                firstMinIndex = j;
+            } else {
+                if(dist < secondMinValue){
+                    secondMinValue = dist;
+                    secondMinIndex = j;
+                }
+            }
+        }
+         //qDebug()<<"firstMinValue: " << firstMinValue <<" secondMinValue: " << secondMinValue;
+        //берем точку если у нее NNDR < 0.8 (борьба с многозначностью)
+        if(firstMinValue / secondMinValue < 0.8 && firstMinValue < middleValue * 0.8){
+
+            double r = static_cast<double>(rand() % 255)  / 255;
+            double g = static_cast<double>(rand() % 255) / 255;
+            double b = static_cast<double>(rand() % 255) / 255;
+
+
+            myGraphic2->getImageRGB()->setPixel(points1.at(i).getX() - 1, points1.at(i).getY(), r, g, b);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(points1.at(i).getX() + 1, points1.at(i).getY(), r, g, b);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(points1.at(i).getX(), points1.at(i).getY(), r, g, b);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(points1.at(i).getX(), points1.at(i).getY() - 1, r, g, b);  //красим точки
+            myGraphic2->getImageRGB()->setPixel(points1.at(i).getX(), points1.at(i).getY() + 1, r, g, b);  //красим точки
+
+            gaphicTransformed->getImageRGB()->setPixel(points2.at(firstMinIndex).getX() - 1, points2.at(firstMinIndex).getY(), r, g, b);  //красим точки
+            gaphicTransformed->getImageRGB()->setPixel(points2.at(firstMinIndex).getX() + 1, points2.at(firstMinIndex).getY(), r, g, b);  //красим точки
+            gaphicTransformed->getImageRGB()->setPixel(points2.at(firstMinIndex).getX(), points2.at(firstMinIndex).getY(), r, g, b);  //красим точки
+            gaphicTransformed->getImageRGB()->setPixel(points2.at(firstMinIndex).getX(), points2.at(firstMinIndex).getY() - 1, r, g, b);  //красим точки
+            gaphicTransformed->getImageRGB()->setPixel(points2.at(firstMinIndex).getX(), points2.at(firstMinIndex).getY() + 1, r, g, b);  //красим точки
+        }
+    }
+
+//сохраняем
+    myGraphic2->getImageRGB()->getImage()->save(path + "/res1.png");
+    gaphicTransformed->getImageRGB()->getImage()->save(path + "/res2.png");
+
+
 
     myGraphic2->setImageFromRGB();   //переводим матрицу обратно в Image
     image = myGraphic2->getImage();

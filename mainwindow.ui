@@ -80,6 +80,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="buttonDescriptors">
+          <property name="text">
+           <string>Дескрипторы</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="ButtonRepair">
           <property name="text">
            <string>Сброс</string>

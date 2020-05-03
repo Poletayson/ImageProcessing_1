@@ -124,6 +124,19 @@ DoubleImageMono::DoubleImageMono(QImage *image)
         }
 }
 
+//конструктор копирования на основе массива
+DoubleImageMono::DoubleImageMono(double *image, int w, int h)
+{
+    width = w;
+    height = h;
+
+    imageDouble = new double [height * width];
+    for (int j = 0; j < height; j++)
+        for (int i = 0; i < width; i++){
+            imageDouble[j * width + i] = image[j * width + i];
+        }
+}
+
 QImage *DoubleImageMono::getImage()
 {
     QRgb *imageBytes[height];
@@ -194,7 +207,7 @@ double *DoubleImageMono::getReservCopy()
     double *cp = new double[width * height];
     for (int i = 0; i < width; ++i) {
         for (int j = 0; j < height; ++j) {
-            cp[j * width + i] = reserv[j * width + i];
+            cp[j * width + i] = imageDouble[j * width + i];
         }
     }
     return cp;

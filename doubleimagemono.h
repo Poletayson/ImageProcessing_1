@@ -21,6 +21,7 @@ class DoubleImageMono : public IDoubleImage
 public:
     DoubleImageMono();
     DoubleImageMono(QImage *image);
+    DoubleImageMono(double *image, int w, int h);   //конструктор копирования на основе массива
 
     virtual QImage *getImage ();    //построить изображение и вернуть
     virtual void getImage (QImage *img);    //записать матрицы в заданное изображение

@@ -14,16 +14,18 @@
 #include <QPainter>
 #include <QtMath>
 #include <QRect>
+#include <QDebug>
+#include <QPainter>
+#include <QFile>
+#include <QMutableListIterator>
+
 #include "doubleimagergb.h"
 #include "doubleimagemono.h"
 #include "idoubleimage.h"
 #include "pyramideimage.h"
 #include "octave.h"
 #include "interestingpoint.h"
-#include <QDebug>
-#include <QPainter>
-#include <QFile>
-#include <QMutableListIterator>
+#include "descriptorconstructor.h"
 
 class Graphic : public QGraphicsView
 {
@@ -82,10 +84,14 @@ public:
     void getPyramide(int octaveCount, int levelCount, double sigmaA, double sigma0); //построить пирамиду
     double getL(QList<Octave*> pyramide, int y, int x, double sigma, int colorNum); //функция L(x, y, sigma)
 
-    void setMoravek (int winSize, int pointCount, bool isCount = true);    //применить оператор Моравека
-    void setHarris (int winSize, int pointCount, bool isCount = true, double k = 0.06);    //применить оператор Харриса
+    QList <InterestingPoint> setMoravek (int winSize, int pointCount, bool isCount = true);    //применить оператор Моравека
+    QList <InterestingPoint> setHarris (int winSize, int pointCount, bool isCount = true, double k = 0.06);    //применить оператор Харриса
+
+    QList <InterestingPoint> getDescriptors (int pointCount, int basketCount = 8, int histCount = 4, int gridSize = 16);    //вычислить дескрипторы
 
     void setLIMIT(int value);
+
+    DoubleImageRGB *getImageRGB() const;
 
 public slots:
     //void Drawing ();

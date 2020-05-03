@@ -3,6 +3,8 @@
 
 #include "math.h"
 
+#include "descriptor.h"
+
 class InterestingPoint
 {
 public:
@@ -20,9 +22,18 @@ public:
 
     static double getDistance (InterestingPoint a, InterestingPoint b);
 
+    Descriptor getDescroptor() const;
+    void setDescroptor(const Descriptor &value);
+
+    double getAngle() const;
+    void setAngle(double value);
+
 private:
     int x, y;
-    double c;
+    double c;   //значение
+    double angle;   //угол
+
+    Descriptor descroptor;
 };
 
 #endif // INTERESTINGPOINT_H

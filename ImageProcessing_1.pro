@@ -7,7 +7,7 @@
 QT       += core gui widgets
 
 
-QMAKE_LIBS+=-static -lgomp -lpthread
+QMAKE_LIBS+=-static
 
 QMAKE_CXXFLAGS+=-msse3
 
@@ -15,7 +15,7 @@ QMAKE_CXXFLAGS+=-msse3
 
 #QMAKE_CXXFLAGS+=-U_WIN32
 
-TARGET = Parallel_Programming
+TARGET = ImageProcessing
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -32,6 +32,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    descriptor.cpp \
+    descriptorconstructor.cpp \
     doubleimagemono.cpp \
     doubleimagergb.cpp \
     idoubleimage.cpp \
@@ -40,9 +42,12 @@ SOURCES += \
         mainwindow.cpp \
     graphic.cpp \
     octave.cpp \
-    pyramideimage.cpp
+    pyramideimage.cpp \
+    utils.cpp
 
 HEADERS += \
+    descriptor.h \
+    descriptorconstructor.h \
     doubleimagemono.h \
     doubleimagergb.h \
     idoubleimage.h \
@@ -50,7 +55,8 @@ HEADERS += \
         mainwindow.h \
     graphic.h \
     octave.h \
-    pyramideimage.h
+    pyramideimage.h \
+    utils.h
 
 
 FORMS += \

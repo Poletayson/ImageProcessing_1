@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-//#include "mainwindow.h"
+#include <QDebug>
 #include "ui_mainwindow.h"
 #include <QMainWindow>
 #include <QApplication>
@@ -9,7 +9,7 @@
 #include <graphic.h>
 #include <iterator>
 #include <qmath.h>
-//#include <windows.h>
+#include <QDir>
 #include <QWidget>
 #include <QGraphicsItem>
 #include <QPixelFormat>
@@ -61,14 +61,17 @@ private slots:
     void setGauss ();    //
     void getPyramide(); //построить пирамиду
 
-    void setMoravek ();    //оператор Моравека
-    void setHarris ();    //оператор Харриса
+    void getMoravec ();    //оператор Моравека
+    void getHarris ();    //оператор Харриса
+    void getDescriptors ();    //получить дескрипторы
 
 private:
     Ui::MainWindow *ui;
 
     QImage *image;
     unsigned char *grayScale;   //изображение в сером цвете
+
+    QString path;
 };
 
 #endif // MAINWINDOW_H

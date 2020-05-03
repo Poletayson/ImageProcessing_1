@@ -344,6 +344,8 @@ void Graphic::gaussianFilterMonoSep(double sigma)
 
 void Graphic::getPyramide(int octaveCount, int levelCount, double sigmaA, double sigma0)
 {
+    long full_time = clock();
+
     double k = pow(2.0, 1.0 / (levelCount - 1)); //интервал между масштабами
     double sigmaB = sqrt(sigma0 * sigma0 - sigmaA * sigmaA);    //с каким сигма нужно сгладить, чтобы получить с требуемым sigma0
     gaussianFilterRGBSep(sigmaB);   //досглаживаем изображение
@@ -392,6 +394,7 @@ void Graphic::getPyramide(int octaveCount, int levelCount, double sigmaA, double
             imageRGB->downSample(); //уменьшаем изображение
     }
 
+
     //сохраняем
     foreach (Octave *octave, pyramide)
         foreach (PyramideImage *currImage, *octave->getLayers()) {
@@ -400,6 +403,7 @@ void Graphic::getPyramide(int octaveCount, int levelCount, double sigmaA, double
             currImage->getImage()->getImage()->save(path);
         }
 
+    qDebug() << "\n\nFULL TIME : " << (clock() - full_time) / 1000.0 << "\n";
 }
 
 //функция L(x, y, sigma)
@@ -428,7 +432,7 @@ double Graphic::getL(QList<Octave *> pyramide, int y, int x, double sigma, int c
 }
 
 //применить оператор Моравека
-void Graphic::setMoravek(int winSize, int pointCount, bool isCount)
+QList <InterestingPoint> Graphic::setMoravek(int winSize, int pointCount, bool isCount)
 {
     int w = imageMono->getWidth();
     int h = imageMono->getHeight();
@@ -464,17 +468,19 @@ void Graphic::setMoravek(int winSize, int pointCount, bool isCount)
 //        interestingPoints.removeLast(); //оставляем самые-самые точки
 
 
-    foreach (InterestingPoint point, interestingPoints) {
-        imageRGB->setPixel(point.getX() - 1, point.getY(), 1, 1, 1);  //красим точки
-        imageRGB->setPixel(point.getX() + 1, point.getY(), 1, 1, 1);  //красим точки
-        imageRGB->setPixel(point.getX(), point.getY(), 1, 1, 1);  //красим точки
-        imageRGB->setPixel(point.getX(), point.getY() - 1, 1, 1, 1);  //красим точки
-        imageRGB->setPixel(point.getX(), point.getY() + 1, 1, 1, 1);  //красим точки
-    }
+//    foreach (InterestingPoint point, interestingPoints) {
+//        imageRGB->setPixel(point.getX() - 1, point.getY(), 1, 1, 1);  //красим точки
+//        imageRGB->setPixel(point.getX() + 1, point.getY(), 1, 1, 1);  //красим точки
+//        imageRGB->setPixel(point.getX(), point.getY(), 1, 1, 1);  //красим точки
+//        imageRGB->setPixel(point.getX(), point.getY() - 1, 1, 1, 1);  //красим точки
+//        imageRGB->setPixel(point.getX(), point.getY() + 1, 1, 1, 1);  //красим точки
+//    }
+
+    return interestingPoints;
 }
 
 //применить оператор Харриса
-void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
+QList <InterestingPoint> Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
 {
     gaussianFilterMonoSep(1.3); //немного сглаживаем
     //находим производные
@@ -566,22 +572,46 @@ void Graphic::setHarris(int winSize, int pointCount, bool isCount, double k)
 //        interestingPoints.removeLast(); //оставляем самые-самые точки
 
 
-    foreach (InterestingPoint point, interestingPoints) {
-        imageRGB->setPixel(point.getX() - 1, point.getY(), 1, 1, 1);  //красим точки
-        imageRGB->setPixel(point.getX() + 1, point.getY(), 1, 1, 1);  //красим точки
-        imageRGB->setPixel(point.getX(), point.getY(), 1, 1, 1);  //красим точки
-        imageRGB->setPixel(point.getX(), point.getY() - 1, 1, 1, 1);  //красим точки
-        imageRGB->setPixel(point.getX(), point.getY() + 1, 1, 1, 1);  //красим точки
-    }
+//    foreach (InterestingPoint point, interestingPoints) {
+//        imageRGB->setPixel(point.getX() - 1, point.getY(), 1, 1, 1);  //красим точки
+//        imageRGB->setPixel(point.getX() + 1, point.getY(), 1, 1, 1);  //красим точки
+//        imageRGB->setPixel(point.getX(), point.getY(), 1, 1, 1);  //красим точки
+//        imageRGB->setPixel(point.getX(), point.getY() - 1, 1, 1, 1);  //красим точки
+//        imageRGB->setPixel(point.getX(), point.getY() + 1, 1, 1, 1);  //красим точки
+//    }
     delete[] a;
     delete[] b;
     delete[] c;
     delete[] gaussKernel;
+
+    return interestingPoints;
+}
+
+QList<InterestingPoint> Graphic::getDescriptors(int pointCount, int basketCount, int histCount, int gridSize)
+{
+    int w = imageMono->getWidth();
+    int h = imageMono->getHeight();
+
+    QList <InterestingPoint> interestingPoints = setHarris(3, pointCount);  //получаем интересные точки
+
+    DescriptorConstructor descriptorConstructor (imageMono);
+    interestingPoints = descriptorConstructor.orientPoints(interestingPoints);  //определяем углы точек
+
+    for (int i = 0, endI = interestingPoints.count(); i < endI; i ++){
+        interestingPoints[i].setDescroptor(descriptorConstructor.createDescriptor(interestingPoints[i]));   //для каждой точки устанавливаем дескриптор
+    }
+
+    return interestingPoints;
 }
 
 void Graphic::setLIMIT(int value)
 {
     LIMIT = value;
+}
+
+DoubleImageRGB *Graphic::getImageRGB() const
+{
+    return imageRGB;
 }
 
 //получить ошибку при сдвиге окна

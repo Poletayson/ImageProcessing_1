@@ -6,6 +6,7 @@ InterestingPoint::InterestingPoint(int x, int y, double c)
     this->x = x;
     this->y = y;
     this->c = c;
+    angle = 0;
 }
 
 double InterestingPoint::getC() const
@@ -50,4 +51,24 @@ double InterestingPoint::getDistance(InterestingPoint a, InterestingPoint b)
     double xd = a.getX() - b.getX();
     double yd = a.getY() - b.getY();
     return  sqrt(xd * xd + yd * yd);
+}
+
+Descriptor InterestingPoint::getDescroptor() const
+{
+    return descroptor;
+}
+
+void InterestingPoint::setDescroptor(const Descriptor &value)
+{
+    descroptor = value;
+}
+
+double InterestingPoint::getAngle() const
+{
+    return angle;
+}
+
+void InterestingPoint::setAngle(double value)
+{
+    angle = value;
 }
