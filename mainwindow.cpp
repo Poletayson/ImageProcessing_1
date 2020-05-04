@@ -64,7 +64,7 @@ void MainWindow::getFile()             //выбираем файл
 {
     QString fileName = QFileDialog::getOpenFileName(Q_NULLPTR, "Выберите входной файл", path);
     //получили файл
-    if (! fileName.isEmpty()){
+    if (!fileName.isEmpty()){
         myGraphic->GetFileImage(fileName);      //получаем изображение
         setStart ();
     }
@@ -80,7 +80,8 @@ void MainWindow::saveFile()
         QDir(path).mkdir("Input");
     QString fileName = QFileDialog::getSaveFileName(Q_NULLPTR, "Сохранить", path);
     //получили имя
-    myGraphic2->getImage()->save(fileName);
+    if (!fileName.isEmpty())
+        myGraphic2->getImage()->save(fileName);
 }
 
 
@@ -257,20 +258,18 @@ void MainWindow::getDescriptors()
 //    foreach (InterestingPoint p, points1) {
 //        qDebug()<<p.getDescroptor().toString();
 //    }
-    qDebug()<<"Desc1 getted";
+//    qDebug()<<"Desc1 getted";
 
     Graphic *gaphicTransformed = new Graphic ();
-    gaphicTransformed->setImage(new QImage (path + "/Lena2.jpg"));
-//    qDebug()<<"Size " << gaphicTransformed->getImage()->width() << " " << gaphicTransformed->getImage()->height();
-    qDebug()<<path + "/transformed.jpg";
+    gaphicTransformed->setImage(new QImage (path + "/LenaR.jpg"));
     QList<InterestingPoint> points2 = gaphicTransformed->getDescriptors(ui->horizontalSliderPointsCount->value()); //получить дескрипторы
 //    foreach (InterestingPoint p, points2) {
 //        qDebug()<<p.getDescroptor().toString();
 //    }
-    qDebug()<<"Desc2 getted";
+//    qDebug()<<"Desc2 getted";
     //получили дескрипторы для двух картинок
 
-    double *distances = new double[points1.size() * points2.size()];
+    double *distances = new double[points1.size() * points2.size()];    //расстояния от дескрипторов одной картинки до дескрипторов другой
 
     double minValue = std::numeric_limits<double>::max();
     double maxValue = std::numeric_limits<double>::min();
@@ -293,32 +292,57 @@ void MainWindow::getDescriptors()
     middleValue /= points1.size() * points2.size();
     qDebug()<<"MinDist: " << minValue <<" MaxDist: " << maxValue << "middle: " << middleValue;
 
+    QImage result = Utils::imageJoining(*myGraphic2->getImageRGB()->getImage(), *gaphicTransformed->getImageRGB()->getImage());
+
+    QPainter painter (&result);
+    painter.setPen(QColor(255, 255, 255, 160));
+    int w = myGraphic2->getImageRGB()->getWidth();
+
 
     //Поиск соответствий
     for(int i = 0; i < points1.size(); i++){
         double firstMinValue = std::numeric_limits<double>::max();
         int firstMinIndex = 0;
         double secondMinValue = std::numeric_limits<double>::max();
-        int secondMinIndex = 0;
+        //int secondMinIndex = 0;
 
+        //ищем соотв. точку второй картинки
         for(int j = 0; j < points2.size(); j++){
-            double dist = distances[i * points2.size() + j];//Utils::getDescriptorDistance(points1.at(i).getDescroptor(), points2.at(j).getDescroptor());
+            double dist = distances[i * points2.size() + j];
             if(dist < firstMinValue){
                 secondMinValue = firstMinValue;
-                secondMinIndex = firstMinIndex;
+                //secondMinIndex = firstMinIndex;
 
                 firstMinValue = dist;
                 firstMinIndex = j;
             } else {
                 if(dist < secondMinValue){
                     secondMinValue = dist;
-                    secondMinIndex = j;
+                    //secondMinIndex = j;
                 }
             }
         }
-         //qDebug()<<"firstMinValue: " << firstMinValue <<" secondMinValue: " << secondMinValue;
-        //берем точку если у нее NNDR < 0.8 (борьба с многозначностью)
-        if(firstMinValue / secondMinValue < 0.8 && firstMinValue < middleValue * 0.8){
+
+        //а теперь то же самое, но смотрим в обратную сторону. Чтобы для точки со второй картинки не было двух кандидатов из первой
+        double firstMinValue2 = std::numeric_limits<double>::max();
+        double secondMinValue2 = std::numeric_limits<double>::max();
+        for(int j = 0; j < points1.size(); j++){
+            double dist = distances[j * points2.size() + firstMinIndex];
+            if(dist < firstMinValue2){
+                secondMinValue2 = firstMinValue2;
+
+                firstMinValue2 = dist;
+            } else {
+                if(dist < secondMinValue2){
+                    secondMinValue2 = dist;
+                }
+            }
+        }
+
+        qDebug()<<"firstMinValue: " << firstMinValue <<" secondMinValue: " << secondMinValue;
+        qDebug()<<"firstMinValue2: " << firstMinValue2 <<" secondMinValue2: " << secondMinValue2;
+        //берем точку если у нее NNDR < 0.6 (борьба с многозначностью). Также отбрасываем "ложные срабатывания"
+        if(firstMinValue / secondMinValue < 0.6 && firstMinValue2 / secondMinValue2 < 0.6 && firstMinValue < middleValue * 0.1){
 
             double r = static_cast<double>(rand() % 255)  / 255;
             double g = static_cast<double>(rand() % 255) / 255;
@@ -336,10 +360,13 @@ void MainWindow::getDescriptors()
             gaphicTransformed->getImageRGB()->setPixel(points2.at(firstMinIndex).getX(), points2.at(firstMinIndex).getY(), r, g, b);  //красим точки
             gaphicTransformed->getImageRGB()->setPixel(points2.at(firstMinIndex).getX(), points2.at(firstMinIndex).getY() - 1, r, g, b);  //красим точки
             gaphicTransformed->getImageRGB()->setPixel(points2.at(firstMinIndex).getX(), points2.at(firstMinIndex).getY() + 1, r, g, b);  //красим точки
+
+            painter.drawLine(points1.at(i).getX(), points1.at(i).getY(), points2.at(firstMinIndex).getX() + w, points2.at(firstMinIndex).getY());
         }
     }
 
 //сохраняем
+    result.save(path + "/result.png");
     myGraphic2->getImageRGB()->getImage()->save(path + "/res1.png");
     gaphicTransformed->getImageRGB()->getImage()->save(path + "/res2.png");
 

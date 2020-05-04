@@ -58,8 +58,8 @@ Descriptor DescriptorConstructor::createDescriptor(InterestingPoint inputPoint)
         for(int j = -descriptorRadius; j < descriptorRadius; j++){
 
             //Учитываем угол особой точки
-            int angledX = (i * cos((360.0 - inputPoint.getAngle()) * M_PI / 180.0) - j * sin((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + 0.5);
-            int angledY = (i * sin((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + j * cos((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + 0.5);
+            int angledX = i;//(i * cos((360.0 - inputPoint.getAngle()) * M_PI / 180.0) - j * sin((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + 0.5);
+            int angledY = j;//(i * sin((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + j * cos((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + 0.5);
 
             //За границей?
             if(angledX < -descriptorRadius) {

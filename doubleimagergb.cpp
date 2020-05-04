@@ -166,13 +166,18 @@ QImage *DoubleImageRGB::getImage()
         imageBytes[i] = (QRgb*)(img->scanLine(i));
     }
 
-    normalization255(r);
-    normalization255(g);
-    normalization255(b);
+    double *r1 = new double[width * height], *g1 = new double[width * height], *b1 = new double[width * height];
+    std::copy(r, r + width * height, r1);
+    std::copy(g, g + width * height, g1);
+    std::copy(b, b + width * height, b1);
+
+    normalization255(r1);
+    normalization255(g1);
+    normalization255(b1);
     //устанавливаем значения для изображения
     for (int j = 0; j < height; ++j) //все строки
         for (int i = 0; i < width; ++i) {
-            imageBytes[j][i] = qRgb(static_cast<int>(r[j * width + i]), static_cast<int>(g[j * width + i]), static_cast<int>(b[j * width + i]));
+            imageBytes[j][i] = qRgb(static_cast<int>(r1[j * width + i]), static_cast<int>(g1[j * width + i]), static_cast<int>(b1[j * width + i]));
         }
 
     return img;

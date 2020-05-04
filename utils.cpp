@@ -24,3 +24,12 @@ double Utils::getDescriptorDistance(Descriptor d1, Descriptor d2)
     }
     return sqrt(result);
 }
+
+QImage Utils::imageJoining(QImage i1, QImage i2)
+{
+    QPixmap px(i1.width() + i2.width(), std::max(i1.height(), i2.height())); // создаём картинку
+    QPainter p(&px);
+    p.drawImage(0, 0, i1);
+    p.drawImage(i1.width(), 0, i2);
+    return px.toImage();
+}

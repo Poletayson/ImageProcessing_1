@@ -595,7 +595,7 @@ QList<InterestingPoint> Graphic::getDescriptors(int pointCount, int basketCount,
     QList <InterestingPoint> interestingPoints = setHarris(3, pointCount);  //получаем интересные точки
 
     DescriptorConstructor descriptorConstructor (imageMono);
-    interestingPoints = descriptorConstructor.orientPoints(interestingPoints);  //определяем углы точек
+    //interestingPoints = descriptorConstructor.orientPoints(interestingPoints);  //определяем углы точек
 
     for (int i = 0, endI = interestingPoints.count(); i < endI; i ++){
         interestingPoints[i].setDescroptor(descriptorConstructor.createDescriptor(interestingPoints[i]));   //для каждой точки устанавливаем дескриптор
