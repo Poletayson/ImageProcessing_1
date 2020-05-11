@@ -7,6 +7,20 @@ double *DoubleImageMono::getImageDouble() const
 
 double DoubleImageMono::getPixel(int x, int y) const //получит значение писеля в заданной точке
 {
+    switch (effect) {
+        case EDGE_COPY:{
+            int i, j;
+            i = x <= 0 ? 0 : (x >= width - 1 ? width - 1 : x);
+            j = y <= 0 ? 0 : (y >= height - 1 ? height - 1 : y);
+            return imageDouble[j * width + i];
+        }
+        case EDGE_BLACK:{
+            if (x >= 0 && x <= width - 1 && y >= 0 && y <= height - 1)
+                return imageDouble[y * width + x];
+            else return 0;
+
+        }
+    }
     int i, j;
     i = x <= 0 ? 0 : (x >= width - 1 ? width - 1 : x);
     j = y <= 0 ? 0 : (y >= height - 1 ? height - 1 : y);
@@ -24,6 +38,11 @@ void DoubleImageMono::save(QString name)
     normalization255(imageDouble);
     QString path = QApplication::applicationDirPath() + "/Input/" + name;      //текущая директория
     getImage()->save(path);
+}
+
+void DoubleImageMono::setEffect(const EdgeEffects &value)
+{
+    effect = value;
 }
 
 void DoubleImageMono::normalization255(double *img)
@@ -101,6 +120,7 @@ DoubleImageMono::DoubleImageMono()
 {
     reserv = nullptr;
     imageDouble = nullptr;
+    effect = EDGE_COPY; //по умолчанию
 }
 
 DoubleImageMono::DoubleImageMono(QImage *image)
@@ -122,6 +142,8 @@ DoubleImageMono::DoubleImageMono(QImage *image)
             imageDouble[j * width + i] = static_cast<double>(qRed(imageBytes[j][i])) / 255;
             reserv[j * width + i] = static_cast<double>(qRed(imageBytes[j][i])) / 255;
         }
+
+    effect = EDGE_COPY; //по умолчанию
 }
 
 //конструктор копирования на основе массива
@@ -135,6 +157,8 @@ DoubleImageMono::DoubleImageMono(double *image, int w, int h)
         for (int i = 0; i < width; i++){
             imageDouble[j * width + i] = image[j * width + i];
         }
+
+    effect = EDGE_COPY; //по умолчанию
 }
 
 QImage *DoubleImageMono::getImage()

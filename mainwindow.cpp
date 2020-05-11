@@ -261,7 +261,7 @@ void MainWindow::getDescriptors()
 //    qDebug()<<"Desc1 getted";
 
     Graphic *gaphicTransformed = new Graphic ();
-    gaphicTransformed->setImage(new QImage (path + "/LenaR.jpg"));
+    gaphicTransformed->setImage(new QImage (path + "/LenaRotated4.jpg"));
     QList<InterestingPoint> points2 = gaphicTransformed->getDescriptors(ui->horizontalSliderPointsCount->value()); //получить дескрипторы
 //    foreach (InterestingPoint p, points2) {
 //        qDebug()<<p.getDescroptor().toString();
@@ -299,6 +299,26 @@ void MainWindow::getDescriptors()
     int w = myGraphic2->getImageRGB()->getWidth();
 
 
+    foreach (InterestingPoint point, points1) {
+//        qDebug()<<"x1: " << point.getX() <<" y1: " << point.getY() <<" a: " << point.getAngle();
+//        qDebug()<<point.getDescroptor().toString();
+        myGraphic2->getImageRGB()->setPixel(point.getX() - 1, point.getY(), 1, 1, 1);  //красим точки
+        myGraphic2->getImageRGB()->setPixel(point.getX() + 1, point.getY(), 1, 1, 1);  //красим точки
+        myGraphic2->getImageRGB()->setPixel(point.getX(), point.getY(), 1, 1, 1);  //красим точки
+        myGraphic2->getImageRGB()->setPixel(point.getX(), point.getY() - 1, 1, 1, 1);  //красим точки
+        myGraphic2->getImageRGB()->setPixel(point.getX(), point.getY() + 1, 1, 1, 1);  //красим точки
+    }
+
+    foreach (InterestingPoint point, points2) {
+//        qDebug()<<"x2: " << point.getX() <<" y2: " << point.getY() <<" a: " << point.getAngle();
+//        qDebug()<<point.getDescroptor().toString();
+        gaphicTransformed->getImageRGB()->setPixel(point.getX() - 1, point.getY(), 1, 1, 1);  //красим точки
+        gaphicTransformed->getImageRGB()->setPixel(point.getX() + 1, point.getY(), 1, 1, 1);  //красим точки
+        gaphicTransformed->getImageRGB()->setPixel(point.getX(), point.getY(), 1, 1, 1);  //красим точки
+        gaphicTransformed->getImageRGB()->setPixel(point.getX(), point.getY() - 1, 1, 1, 1);  //красим точки
+        gaphicTransformed->getImageRGB()->setPixel(point.getX(), point.getY() + 1, 1, 1, 1);  //красим точки
+    }
+
     //Поиск соответствий
     for(int i = 0; i < points1.size(); i++){
         double firstMinValue = std::numeric_limits<double>::max();
@@ -321,7 +341,10 @@ void MainWindow::getDescriptors()
                     //secondMinIndex = j;
                 }
             }
+
         }
+
+
 
         //а теперь то же самое, но смотрим в обратную сторону. Чтобы для точки со второй картинки не было двух кандидатов из первой
         double firstMinValue2 = std::numeric_limits<double>::max();
@@ -339,14 +362,28 @@ void MainWindow::getDescriptors()
             }
         }
 
-        qDebug()<<"firstMinValue: " << firstMinValue <<" secondMinValue: " << secondMinValue;
-        qDebug()<<"firstMinValue2: " << firstMinValue2 <<" secondMinValue2: " << secondMinValue2;
+
+
         //берем точку если у нее NNDR < 0.6 (борьба с многозначностью). Также отбрасываем "ложные срабатывания"
-        if(firstMinValue / secondMinValue < 0.6 && firstMinValue2 / secondMinValue2 < 0.6 && firstMinValue < middleValue * 0.1){
+        if(firstMinValue / secondMinValue < 0.6 && firstMinValue2 / secondMinValue2 < 0.6 && firstMinValue < maxValue * 0.6){ // && firstMinValue < middleValue * 0.1
+
+
+            qDebug()<<"";
+            qDebug()<<"";
+                    qDebug()<<"firstMinValue: " << firstMinValue <<" secondMinValue: " << secondMinValue;
+                    qDebug()<<"firstMinValue2: " << firstMinValue2 <<" secondMinValue2: " << secondMinValue2;
+
+                    qDebug()<<"x1: " << points1.at(i).getX() <<" y1: " << points1.at(i).getY() <<" a: " << points1.at(i).getAngle();
+//                    qDebug()<<points1.at(i).getDescroptor().toString();
+                    qDebug()<<"x2: " << points2.at(firstMinIndex).getX() <<" y2: " << points2.at(firstMinIndex).getY() <<" a: " << points2.at(firstMinIndex).getAngle();
+//                    qDebug()<<points2.at(firstMinIndex).getDescroptor().toString();
+
+
 
             double r = static_cast<double>(rand() % 255)  / 255;
             double g = static_cast<double>(rand() % 255) / 255;
             double b = static_cast<double>(rand() % 255) / 255;
+
 
 
             myGraphic2->getImageRGB()->setPixel(points1.at(i).getX() - 1, points1.at(i).getY(), r, g, b);  //красим точки
@@ -378,6 +415,7 @@ void MainWindow::getDescriptors()
     myGraphic2->imageItem = myGraphic2->myScene->addPixmap(QPixmap::fromImage(*image));
 
     setInterfaceDisabled(false);
+    qDebug()<<"end";
 }
 
 

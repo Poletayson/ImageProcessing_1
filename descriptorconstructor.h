@@ -14,7 +14,7 @@ class DescriptorConstructor
     int histogramCount;    //число гистограмм
     int gridSize;   //размер области
 
-    //double *gaussKernel;
+    double *gaussKernel;
 
     DoubleImageMono *dx;
     DoubleImageMono *dy;

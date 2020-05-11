@@ -10,8 +10,14 @@
 
 class DoubleImageMono : public IDoubleImage
 {
+public:
+    enum EdgeEffects{EDGE_COPY, EDGE_BLACK};
+
+private:
     double *reserv;   //текущее изображение в виде матриц компонент цвета
     double *imageDouble;   //текущее изображение в виде матриц компонент цвета
+
+    EdgeEffects effect;
 
     virtual void normalization255(double *img);
     virtual void convolutionUniversalConcrete(double *image, QList<QList<double>> core, bool norm = false);  //универсальная свертка, применяется к *image
@@ -39,6 +45,7 @@ public:
     void setPixel (int x, int y, double c);
 
     void save (QString name);
+    void setEffect(const EdgeEffects &value);
 };
 
 #endif // DOUBLEIMAGEMONO_H

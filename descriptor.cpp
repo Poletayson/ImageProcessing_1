@@ -60,7 +60,7 @@ QString Descriptor::toString()
 {
     QString str = "";
     for (int i = 0; i < histograms.size(); i++)
-        str += QString(" ") + QString::number(histograms[i], 'f');
+        str += QString(" ") + QString::number(histograms[i], 'f', 4);
     return str;
 }
 
@@ -69,7 +69,7 @@ Descriptor::Descriptor(int bascketCountP, int histogramsCountP)
     bascketCount = bascketCountP;
     histogramsCount = histogramsCountP;
     //заполняем гистограммы нулями
-    for (int i = 0, endI = bascketCount * histogramsCount * bascketCount * histogramsCount; i < endI; i++){
+    for (int i = 0, endI = bascketCount * histogramsCount * histogramsCount; i < endI; i++){
         histograms.append(0);
     }
 }
