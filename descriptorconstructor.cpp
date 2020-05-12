@@ -55,28 +55,21 @@ Descriptor DescriptorConstructor::createDescriptor(InterestingPoint inputPoint)
     double basketSize = 360.0 / basketCount;   //размер одной корзины
     int descriptorRadius = gridSize / 2;
 
-//    int x = inputPoint.getX();
-//    int y = inputPoint.getY();
-
     for(int i = -descriptorRadius; i < descriptorRadius; i++){
         for(int j = -descriptorRadius; j < descriptorRadius; j++){
 
             //Учитываем угол особой точки
-            int angledX = (i * cos((360.0 - inputPoint.getAngle()) * M_PI / 180.0) - j * sin((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + 0.5);
-            int angledY = (i * sin((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + j * cos((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + 0.5);
+            int angledX = static_cast<int>(i * cos((360.0 - inputPoint.getAngle()) * M_PI / 180.0) - j * sin((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + 0.5);
+            int angledY = static_cast<int>(i * sin((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + j * cos((360.0 - inputPoint.getAngle()) * M_PI / 180.0) + 0.5);
 
 //            //В пределах дескриптора?
 //            if(Utils::getDistance((double)angledX, (double)angledY, 0.0, 0.0) < sqrt(pow(descriptorRadius,2) + pow(descriptorRadius,2))){
 
 
-        if(Utils::getDistance((double)angledX, (double)angledY, 0.0, 0.0) > sqrt(pow(descriptorRadius,2) + pow(descriptorRadius,2))){
-            double angle = atan2(angledY, angledX ); //угол, образуемый отрезком
-            qDebug() << "!!!NO!!!" << " " << inputPoint.getX() << " " << inputPoint.getY() << " " << i << " " << j << " " << angledX << " " << angledY << " " << angle << " " << static_cast<int>(sin(angle) * qMax(angledX - 8, 0) + 0.5) << " " << static_cast<int>(cos(angle) * qMax(angledY - 8, 0) + 0.5);
-        //    angledY += static_cast<int>(sin(angle) * qMax(angledX - 8, 0) + 0.5) ;
-        //    angledX += static_cast<int>(cos(angle) * qMax(angledY - 8, 0) + 0.5);
-        }
-
-
+//        if(Utils::getDistance(static_cast<double>(angledX), static_cast<double>(angledY), 0.0, 0.0) > sqrt(pow(descriptorRadius,2) + pow(descriptorRadius,2))){
+//            double angle = atan2(angledY, angledX); //угол, образуемый отрезком
+//            qDebug() << "!!!NO!!!" << " " << inputPoint.getX() << " " << inputPoint.getY() << " " << i << " " << j << " " << angledX << " " << angledY << " " << angle << " " << static_cast<int>(sin(angle) * qMax(angledX - 8, 0) + 0.5) << " " << static_cast<int>(cos(angle) * qMax(angledY - 8, 0) + 0.5);
+//        }
 
             double angle = atan2(angledY, angledX ); //угол, образуемый отрезком
             angledY -= static_cast<int>(sin(angle) * qMax(angledX - 8, 0) + 0.5);
@@ -116,20 +109,20 @@ Descriptor DescriptorConstructor::createDescriptor(InterestingPoint inputPoint)
                 localDirection = (localDirection > 360) ? localDirection - 360 : localDirection;
 
                 //х у гистограммы, начиная с 0
-                int x = static_cast<double>(angledX) / (static_cast<double>(descriptorRadius * 2) / histogramCount) - 0.2;
-                int y = static_cast<double>(angledY) / (static_cast<double>(descriptorRadius * 2) / histogramCount) - 0.2;
+                int x = static_cast<int>(static_cast<double>(angledX) / (static_cast<double>(descriptorRadius * 2) / histogramCount) - 0.2);
+                int y = static_cast<int>(static_cast<double>(angledY) / (static_cast<double>(descriptorRadius * 2) / histogramCount) - 0.2);
 
 
                 //Номер гистограммы
-                int histogramNumber = static_cast<double> (y * histogramCount + x);// / static_cast<double>(gridSize * gridSize)) * histogramCount * histogramCount;
+                int histogramNumber = y * histogramCount + x;// / static_cast<double>(gridSize * gridSize)) * histogramCount * histogramCount;
 //                qDebug() << "i: " << i << " j: " << j<< "angledX: " << angledX << " angledY: " << angledY << " angle: " << inputPoint.getAngle() << " hn: " << histogramNumber;
 
                 //Раскидываем по корзинам
-                int binNumber = (localDirection / basketSize + 0.5);   //Номер корзины
+                int binNumber = static_cast<int>(localDirection / basketSize + 0.5);   //Номер корзины
                 if (binNumber == basketCount)
                     binNumber--;
 
-                double localBinCenter = (double)binNumber * basketSize + basketSize / 2.0;    //центр корзины
+                double localBinCenter = static_cast<double>(binNumber * basketSize) + static_cast<double>(basketSize) / 2.0;    //центр корзины
 
                 int relatedBin; //Номер связанной корзины - той, к которой тоже добавим
                 if(localDirection < localBinCenter)
@@ -175,7 +168,7 @@ QList<InterestingPoint> DescriptorConstructor::orientPoints(QList<InterestingPoi
             for(int j = -descriptorRadius; j <= descriptorRadius; j++){
 
                 //В пределах ?
-                if(Utils::getDistance((double)i, (double)j, 0.0,0.0) < sqrt(pow(descriptorRadius,2) + pow(descriptorRadius,2))){
+                if(Utils::getDistance(static_cast<double>(i), static_cast<double>(j), 0.0,0.0) < sqrt(pow(descriptorRadius,2) + pow(descriptorRadius,2))){
 
                     //Направление Фи
                     double direction =  gradientDirection->getPixel(points.at(index).getX() + i, points.at(index).getY() + j);
@@ -184,7 +177,7 @@ QList<InterestingPoint> DescriptorConstructor::orientPoints(QList<InterestingPoi
                     int basketNumber = static_cast<int> (direction / localBasketSize + 0.5);
 
                     //Раскидываем по корзинам
-                    double localBinCenter = (double)basketNumber * localBasketSize + localBasketSize / 2.0;
+                    double localBinCenter = static_cast<double>(basketNumber * localBasketSize) + localBasketSize / 2.0;
 
                     int relatedbasketNumber;
                     if(direction < localBinCenter)

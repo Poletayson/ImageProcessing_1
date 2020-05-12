@@ -365,17 +365,17 @@ void MainWindow::getDescriptors()
 
 
         //берем точку если у нее NNDR < 0.6 (борьба с многозначностью). Также отбрасываем "ложные срабатывания"
-        if(firstMinValue / secondMinValue < 0.6 && firstMinValue2 / secondMinValue2 < 0.6 && firstMinValue < maxValue * 0.6){ // && firstMinValue < middleValue * 0.1
+        if(firstMinValue / secondMinValue < 0.6 && firstMinValue2 / secondMinValue2 < 0.6 && firstMinValue < maxValue * 0.3){ // && firstMinValue < middleValue * 0.1
 
 
-            qDebug()<<"";
-            qDebug()<<"";
-                    qDebug()<<"firstMinValue: " << firstMinValue <<" secondMinValue: " << secondMinValue;
-                    qDebug()<<"firstMinValue2: " << firstMinValue2 <<" secondMinValue2: " << secondMinValue2;
+//            qDebug()<<"";
+//            qDebug()<<"";
+//                    qDebug()<<"firstMinValue: " << firstMinValue <<" secondMinValue: " << secondMinValue;
+//                    qDebug()<<"firstMinValue2: " << firstMinValue2 <<" secondMinValue2: " << secondMinValue2;
 
-                    qDebug()<<"x1: " << points1.at(i).getX() <<" y1: " << points1.at(i).getY() <<" a: " << points1.at(i).getAngle();
+//                    qDebug()<<"x1: " << points1.at(i).getX() <<" y1: " << points1.at(i).getY() <<" a: " << points1.at(i).getAngle();
 //                    qDebug()<<points1.at(i).getDescroptor().toString();
-                    qDebug()<<"x2: " << points2.at(firstMinIndex).getX() <<" y2: " << points2.at(firstMinIndex).getY() <<" a: " << points2.at(firstMinIndex).getAngle();
+//                    qDebug()<<"x2: " << points2.at(firstMinIndex).getX() <<" y2: " << points2.at(firstMinIndex).getY() <<" a: " << points2.at(firstMinIndex).getAngle();
 //                    qDebug()<<points2.at(firstMinIndex).getDescroptor().toString();
 
 
